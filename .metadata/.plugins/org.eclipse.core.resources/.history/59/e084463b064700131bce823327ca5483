@@ -1,0 +1,46 @@
+package com.buhov.family;
+
+import org.apache.http.client.*;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+public class FamilyClient {
+	private static final String serviceRoot = "http://family.apphb.com/api/";
+	
+	private HttpClient client;
+	private String username;
+	private String password;
+	
+	public FamilyClient(String username, String password) {
+		this.setUsername(username);
+		this.setPassword(password);
+	}
+	
+	public String getUsername() {
+		return this.username;
+	}
+	
+	public void setUsername(String username) {
+		if(username == null) {
+			throw new NullPointerException("The username must not be null.");
+		}
+		this.username = username;
+	}
+	
+	public String getPassword() {
+		return this.password;
+	}
+	
+	public void setPassword(String password) {
+		if(password == null) {
+			throw new NullPointerException("The password must not be null.");
+		}
+		this.password = password;
+	}
+	
+	private HttpClient getClient() {
+		if(this.client == null) {
+			this.client = new DefaultHttpClient();
+		}
+		return this.client;
+	}
+}

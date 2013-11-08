@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Titles and names -->
+    <string name="app_name">Family</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="title_activity_my_pedigrees">My Pedigrees</string>
+    
+    <!-- Menu items -->
+    <string name="menu_item_settings">Settings</string>
+    
+    <!-- Preferences -->
+    	<!-- Preferences Header -->
+    	<string name="pref_header_title_account">Account</string>
+
+    	<!-- Preferences Titles -->
+    	<string name="pref_key_username">pref_username</string>
+    	<string name="pref_title_username">Username</string>
+    	<string name="pref_key_password">pref_password</string>
+    	<string name="pref_title_password">Password</string>
+    	
+   	<!-- Just regular strings in the activities -->
+    <string name="hello_world">Hello world!</string>
+    	
+</resources>

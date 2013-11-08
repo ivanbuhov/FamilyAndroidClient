@@ -1,0 +1,12 @@
+package com.buhov.family;
+
+public class FamilyClient {
+	private static final String serviceRoot = "http://family.apphb.com/api/";
+	
+	private String username;
+	private String password;
+	
+	public FamilyClient() {
+		
+	}
+}

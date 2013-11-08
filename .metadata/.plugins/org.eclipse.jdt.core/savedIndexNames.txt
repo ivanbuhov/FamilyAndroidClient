@@ -1,0 +1,5 @@
+INDEX VERSION 1.126+C:\Users\Buhov\Desktop\Family\Client\FamilyAndroidClient\.metadata\.plugins\org.eclipse.jdt.core
+1297862718.index
+1787943283.index
+1735573298.index
+4253569366.index

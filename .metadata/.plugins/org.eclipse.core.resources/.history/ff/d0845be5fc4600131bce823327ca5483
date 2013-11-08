@@ -1,0 +1,29 @@
+package com.buhov.family;
+
+public class FamilyClient {
+	private static final String serviceRoot = "http://family.apphb.com/api/";
+	
+	private String username;
+	private String password;
+	
+	public FamilyClient(String username, String password) {
+		
+	}
+	
+	public String getUsername() {
+		return this.username;
+	}
+	
+	public void setUsername(String username) {
+		if(username == null) {
+			throw new NullPointerException("The username must not be null.");
+		}
+		this.username = username;
+	}
+	
+	public String getPassword() {
+		return this.password;
+	}
+	
+	
+}

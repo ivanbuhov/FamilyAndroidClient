@@ -1,0 +1,42 @@
+package com.buhov.family;
+
+import com.buhov.FamilyHttpClient.FamilyHttpClient;
+
+import android.app.AlertDialog;
+import android.app.Application;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.*;
+
+public class FamilyApplication extends Application {
+	
+	private FamilyHttpClient familyClient;
+	
+	@Override
+	public void onCreate() {
+		super.onCreate();
+	}
+	
+	public FamilyHttpClient getFamilyClient() {
+		if(this.familyClient == null) {
+			this.familyClient = new FamilyHttpClient();
+		}
+		return this.familyClient;
+	}
+
+	public synchronized void showAlert(String message, int stringResource) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder
+			.setMessage(message)
+			.setTitle(getResources().getString(stringResource))
+			.setIcon(R.drawable.ic_error)
+			.setNeutralButton("OK", new OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+				}
+			});
+		builder.create().show();
+	}
+}

@@ -1,0 +1,6 @@
+package com.buhov.FamilyHttpClient.Entities;
+
+public class UserDTO {
+	private String username;
+	private String password;
+}

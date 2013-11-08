@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="java.lang.Override"/>
+<fullyQualifiedTypeName name="android.preference.PreferenceManager"/>
+<fullyQualifiedTypeName name="java.util.List"/>
+<fullyQualifiedTypeName name="android.preference.PreferenceActivity.Header"/>
+<fullyQualifiedTypeName name="android.preference.PreferenceActivity"/>
+<fullyQualifiedTypeName name="android.content.Intent"/>
+<fullyQualifiedTypeName name="com.buhov.family.SettingsActivity"/>
+<fullyQualifiedTypeName name="android.content.res.Resources"/>
+<fullyQualifiedTypeName name="java.lang.NullPointerException"/>
+<fullyQualifiedTypeName name="org.apache.http.client.HttpClient"/>
+<fullyQualifiedTypeName name="org.apache.http.impl.client.DefaultHttpClient"/>
+<fullyQualifiedTypeName name="com.google.gson.Gson"/>
+<fullyQualifiedTypeName name="org.apache.http.entity.StringEntity"/>
+<fullyQualifiedTypeName name="org.apache.http.HttpResponse"/>
+<fullyQualifiedTypeName name="java.io.BufferedReader"/>
+<fullyQualifiedTypeName name="java.lang.Exception"/>
+<fullyQualifiedTypeName name="com.buhov.FamilyHttpClient.FamilyHttpResponse"/>
+<fullyQualifiedTypeName name="com.buhov.FamilyHttpClient.Entities.FamilyServiceError"/>
+<fullyQualifiedTypeName name="java.io.IOException"/>
+<fullyQualifiedTypeName name="org.apache.http.HttpStatus"/>
+<fullyQualifiedTypeName name="org.apache.http.HttpRequest"/>
+<fullyQualifiedTypeName name="org.apache.http.client.methods.HttpDelete"/>
+<fullyQualifiedTypeName name="org.apache.http.client.methods.HttpPut"/>
+<fullyQualifiedTypeName name="org.apache.http.client.methods.HttpPost"/>
+<fullyQualifiedTypeName name="org.apache.http.HttpEntityEnclosingRequest"/>
+<fullyQualifiedTypeName name="com.buhov.FamilyHttpClient.Entities.UserDTO"/>
+<fullyQualifiedTypeName name="android.widget.TextView.OnEditorActionListener"/>
+<fullyQualifiedTypeName name="android.view.View.OnClickListener"/>
+<fullyQualifiedTypeName name="com.buhov.family.RegisterActivity.onRegisterButtonClickedListener"/>
+<fullyQualifiedTypeName name="com.buhov.FamilyHttpClient.FamilyHttpClient"/>
+<fullyQualifiedTypeName name="com.buhov.FamilyHttpClient.FamilyServiceException"/>
+<fullyQualifiedTypeName name="com.buhov.FamilyHttpClient.Entities.User"/>
+<fullyQualifiedTypeName name="com.buhov.family.BaseActivity"/>
+<fullyQualifiedTypeName name="com.buhov.family.RegisterActivity"/>
+<fullyQualifiedTypeName name="android.content.DialogInterface.OnClickListener"/>
+<fullyQualifiedTypeName name="com.buhov.family.FamilyApplication"/>
+<fullyQualifiedTypeName name="com.buhov.family.R.string"/>
+<fullyQualifiedTypeName name="com.buhov.family.R.id"/>
+<fullyQualifiedTypeName name="android.app.DialogFragment"/>
+<fullyQualifiedTypeName name="com.buhov.family.SimpleDialogFragment"/>
+<fullyQualifiedTypeName name="android.app.AlertDialog"/>
+<fullyQualifiedTypeName name="android.app.AlertDialog.Builder"/>
+<fullyQualifiedTypeName name="android.content.Context"/>
+<fullyQualifiedTypeName name="com.buhov.family.R.drawable"/>
+</qualifiedTypeNameHistroy>

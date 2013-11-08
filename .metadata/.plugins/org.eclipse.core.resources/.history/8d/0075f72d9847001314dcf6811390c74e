@@ -1,0 +1,74 @@
+package com.buhov.FamilyHttpClient;
+
+import java.io.*;
+
+import org.apache.http.*;
+import org.apache.http.client.*;
+import org.apache.http.client.methods.*;
+import org.apache.http.entity.*;
+import org.apache.http.impl.client.*;
+
+import com.buhov.FamilyHttpClient.Entities.*;
+import com.google.gson.*;
+
+public class FamilyHttpClient {
+	
+	private static final String HEADER_USERNAME = "X-Family-Username";
+	private static final String HEADER_PASSWORD = "X-Family-Password";
+	
+	private static final String SERVICE_ROOT = "http://family.apphb.com/api/";
+	private static final String SERVICE_REGISTER_URL = SERVICE_ROOT + "Users/Register";
+	
+	private HttpClient client;
+	private Gson gson;
+	
+	public FamilyHttpClient() {
+		this.client = new DefaultHttpClient();
+		this.gson = new Gson();
+	}
+
+	public void Register(UserDTO user) throws UnsupportedEncodingException {
+		
+	}
+	
+	private <TBody, TResult> TResult PostRequest(String url, TBody entityToSend, Class<TResult> resultEntity, UserDTO user) {
+		HttpPost request = new HttpPost(url);
+		request.addHeader("accept", "application/json");
+		if(user != null) {
+			this.addAuthenticationHeaders(request, user);
+		}
+		
+		try {
+			String entityJSON = this.gson.toJson(entityToSend);
+			request.setEntity(new StringEntity(entityJSON));
+			HttpResponse response = this.client.execute(request);
+			BufferedReader reader = new BufferedReader(
+					new InputStreamReader(response.getEntity().getContent()));
+			StringBuilder json = new StringBuilder();
+			String line;
+			while ((line = reader.readLine()) != null) {
+				json.append(line);
+			}
+			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_BAD_REQUEST) {
+				FamilyServiceError error = this.gson.fromJson(json.toString(), FamilyServiceError.class);
+				throw new FamilyServiceException(error.getDisplayMessage());
+			}
+			
+			TResult result = this.gson.fromJson(json.toString(), resultEntity);
+			return result;
+		}
+		catch(Exception e) {
+			throw new FamilyServiceException("Problem occurs while connecting to the server. Please check your internet connection.");
+		}
+	}
+	
+	private <TBody, TResult> TResult Request(HttpRequest request, Class<TResult> resultEntity) {
+		
+	}
+	
+	private void addAuthenticationHeaders(HttpRequest request, UserDTO user) {
+		request.addHeader(HEADER_USERNAME, user.getUsername());
+		request.addHeader(HEADER_PASSWORD, user.getPassword());
+	}
+}
+

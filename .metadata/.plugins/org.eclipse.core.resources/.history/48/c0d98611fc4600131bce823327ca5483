@@ -1,0 +1,9 @@
+package com.buhov.family;
+
+public class FamilyClient {
+	private static final serviceRoot = "http://family.apphb.com/api/";
+	
+	public FamilyClient() {
+		
+	}
+}

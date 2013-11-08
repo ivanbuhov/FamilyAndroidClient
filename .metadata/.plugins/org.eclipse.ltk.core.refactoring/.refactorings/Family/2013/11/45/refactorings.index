@@ -1,0 +1,43 @@
+1383737622692	Delete element
+1383737627552	Delete element
+1383737730520	Copy file
+1383738339548	Delete element
+1383738432237	Delete element
+1383738452264	Delete element
+1383744755233	Rename resource 'pref_headers.xml'
+1383746596407	Rename resource 'settings_headers.xml'
+1383747400718	Copy file
+1383751344524	Delete element
+1383751347174	Delete element
+1383751349829	Delete element
+1383751828431	Delete element
+1383751832149	Delete element
+1383751834719	Delete element
+1383751836913	Delete element
+1383757784121	Delete element
+1383758465427	Delete element
+1383758886009	Rename package 'com.buhov.httpFamilyClient'
+1383758915640	Rename type 'HttpFamilyClient'
+1383762115169	Delete element
+1383762119309	Delete element
+1383763306190	Delete element
+1383764495013	Delete element
+1383775411929	Rename type variable 'T'
+1383818829370	Delete element
+1383818841609	Delete element
+1383819418140	Rename compilation unit 'Error.java'
+1383822697147	Delete element
+1383824393513	Rename field 'mEmail'
+1383824404558	Rename field 'mPassword'
+1383824412654	Rename field 'email'
+1383824444389	Rename field 'EXTRA_EMAIL'
+1383824513325	Rename field 'mPasswordView'
+1383824525440	Rename field 'mLoginFormView'
+1383824537548	Rename field 'registerFormView'
+1383824552108	Rename field 'mLoginStatusView'
+1383824566068	Rename field 'mLoginStatusMessageView'
+1383826107759	Rename method 'attemptLogin'
+1383826279220	Rename field 'mAuthTask'
+1383826317368	Rename type 'UserLoginTask'
+1383828933130	Rename local variable 'cancel'
+1383855493852	Delete element

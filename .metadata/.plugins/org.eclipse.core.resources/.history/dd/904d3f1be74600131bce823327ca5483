@@ -1,0 +1,20 @@
+package com.buhov.family;
+
+import android.os.Bundle;
+import android.preference.PreferenceFragment;
+
+public class SettingsFragment extends PreferenceFragment {
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		// Load the preferences from an XML resource
+		String settings = getArguments().getString("settings");
+        if ("account".equals(settings)) {
+            addPreferencesFromResource(R.xml.settings_account);
+        } else if ("pedigrees".equals(settings)) {
+            addPreferencesFromResource(R.xml.settings_pedigrees);
+        }
+        // addPreferencesFromResource(R.xml.settings_default);
+	}
+}
