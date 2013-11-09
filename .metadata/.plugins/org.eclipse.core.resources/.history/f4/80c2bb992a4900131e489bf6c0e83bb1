@@ -1,0 +1,16 @@
+package com.buhov.family.FamilyDb;
+
+import com.buhov.family.FamilyHttpClient.Entities.Pedigree;
+
+public class FamilyDb {
+	
+	private FamilyDbHelper helper;
+	
+	public FamilyDb(FamilyDbHelper helper) {
+		this.helper = helper;
+	}
+	
+	public void Update(Pedigree[] pedigrees) {
+		
+	}
+}

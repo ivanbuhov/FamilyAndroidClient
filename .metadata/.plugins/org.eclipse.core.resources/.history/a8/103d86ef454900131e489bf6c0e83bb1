@@ -1,0 +1,35 @@
+package com.buhov.family.FamilyHttpClient.Entities;
+
+public class UserDTO {
+	private String username;
+	private String password;
+	
+	public User(String username, String password) {
+		this.username = username;
+		this.password = authCode;
+	}
+	
+	public int getId() {
+		return this.id;
+	}
+	
+	public String getUsername(){
+		return this.username;
+	}
+	
+	public String getAuthCode() {
+		return this.authCode;
+	}
+	
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	public void setUsername(String username){
+		this.username = username;
+	}
+	
+	public void setAuthCode(String authCode) {
+		this.authCode = authCode;
+	}
+}

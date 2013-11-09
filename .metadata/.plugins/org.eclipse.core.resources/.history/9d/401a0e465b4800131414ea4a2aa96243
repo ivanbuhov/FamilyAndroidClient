@@ -1,0 +1,22 @@
+package com.buhov.FamilyHttpClient.Entities;
+
+import java.sql.Date;
+
+public class Person {
+	private int id;
+	private String displayName;
+	private String firstName;
+	private String middleName;
+	private String lastName;
+	private String nickname;
+	private String email;
+	private Date birthDate;
+	private boolean isAlive;
+	private boolean isMale;
+	private String address;
+	private String profession;
+	private int pedigreeId;
+	private int motherId;
+	private int fatherId;
+	private int spouseId;
+}

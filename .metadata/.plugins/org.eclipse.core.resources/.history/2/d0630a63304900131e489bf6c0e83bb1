@@ -1,0 +1,50 @@
+package com.buhov.family.FamilyDb;
+
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.buhov.family.Utils;
+import com.buhov.family.FamilyHttpClient.Entities.Pedigree;
+import com.buhov.family.FamilyHttpClient.Entities.UserDTO;
+
+public class FamilyDb {
+	
+	private FamilyDbHelper helper;
+	
+	public FamilyDb(FamilyDbHelper helper) {
+		this.helper = helper;
+	}
+	
+	public void Update(UserDTO user, Pedigree[] pedigrees) {
+		// Open the database for writing
+		SQLiteDatabase db = this.helper.getWritableDatabase();
+		// Get the user id
+		String authCodeValue = Utils.encryptPassword(user);
+		String table = FamilyDbHelper.TABLE_NAME_USERS;
+		String username = FamilyDbHelper.C_USERS_USERNAME;
+		String authCode = FamilyDbHelper.C_USERS_AUTHCODE;
+		Cursor cursor = db.query(table, new String[] { FamilyDbHelper.C_ID }, 
+				username + "=" + user.getUsername() + " && " + authCode + "=" + authCodeValue, 
+				null, null, null, null);
+		
+		// Delete all pedigrees from the current user
+		//db.delete(FamilyDbHelper.TABLE_NAME_PEDIGREES, FamilyDbHelper.C_PEDIGREES_OWNERID, whereArgs)
+		// Loop over the pedigrees and save them to the database
+		ContentValues values = new ContentValues();
+		for (Pedigree pedigree : pedigrees) {
+			// Insert into database
+			values.clear();
+			values.put(FamilyDbHelper.C_ID, pedigree.getId());
+			values.put(FamilyDbHelper.C_PEDIGREES_TITLE, pedigree.getTitle());
+			values.put(FamilyDbHelper.C_PEDIGREES_OWNERID, pedigree.getOwnerId());
+			db.insertOrThrow(FamilyDbHelper.TABLE_NAME_PEDIGREES, null, values);
+		}
+		
+		db.close();
+	}
+	
+	private int getUserId(UserDTO user) {
+		
+	}
+}

@@ -1,0 +1,156 @@
+package com.buhov.family;
+
+import com.buhov.family.FamilyData.FamilyData;
+import com.buhov.family.FamilyData.FamilyDataException;
+import com.buhov.family.FamilyHttpClient.Entities.User;
+import com.buhov.family.FamilyHttpClient.Entities.UserDTO;
+
+import android.app.AlertDialog;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
+
+public class RegisterActivity extends BaseActivity {
+	
+	private UserRegistrationTask registrationTask = null;
+
+	// Temporarily store the values from the text
+	private String username;
+	private String password;
+	
+	// UI references
+	private EditText usernameView;
+	private EditText passwordView;
+	private View registrationFormView;
+	private View registrationStatusView;
+	private TextView registrationStatusMessageView;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		setContentView(R.layout.activity_register);
+
+		// Set up the login form and adding the event listeners
+		this.usernameView = (EditText) findViewById(R.id.username);
+		this.passwordView = (EditText) findViewById(R.id.password);
+		this.passwordView.setOnEditorActionListener(new onPasswordEditorActionListener());
+
+		this.registrationFormView = findViewById(R.id.register_form);
+		this.registrationStatusView = findViewById(R.id.register_status);
+		this.registrationStatusMessageView = (TextView) findViewById(R.id.register_status_message);
+
+		findViewById(R.id.register_button).setOnClickListener(new onRegisterButtonClickedListener());
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		getMenuInflater().inflate(R.menu.register, menu);
+		return true;
+	}
+
+	public void attemptRegister() {
+		if (registrationTask != null) {
+			return;
+		}
+
+		// Reset errors.
+		usernameView.setError(null);
+		passwordView.setError(null);
+
+		// Store values at the time of the registration attempt.
+		username = usernameView.getText().toString();
+		password = passwordView.getText().toString();
+
+		boolean cancelRegistration = false;
+		
+
+		if (Utils.validateUserInput(RegisterActivity.this, usernameView, passwordView)) {
+			// Show a progress spinner, and kick off a background task to
+			// perform the user login attempt.
+			registrationStatusMessageView.setText(R.string.register_progress_signing_in);
+			RegisterActivity.this.showProgress(true, registrationFormView, registrationStatusView);
+			registrationTask = new UserRegistrationTask();
+			registrationTask.execute(new UserDTO(username, password));
+		} else {
+			
+		}
+	}
+
+	// Represents an asynchronous registration task used to register a user in the system.
+	public class UserRegistrationTask extends AsyncTask<UserDTO, Void, Boolean> {
+		
+		private FamilyApplication application = (FamilyApplication)getApplication();
+		private User user;
+		private String error;
+		
+		@Override
+		protected Boolean doInBackground(UserDTO... params) {
+			try {
+				FamilyData data = this.application.getFamilyData();
+				this.user = data.Register(params[0]);
+				return true;
+			}
+			catch(FamilyDataException e) {
+				this.error = e.getMessage();
+				return false;
+			}
+		}
+
+		@Override
+		protected void onPostExecute(final Boolean success) {
+			registrationTask = null;
+			RegisterActivity.this.showProgress(false, registrationFormView, registrationStatusView);
+
+			if (success) {
+				RegisterActivity.this.finish();
+				startActivity(new Intent(RegisterActivity.this, MyPedigreesActivity.class));
+				RegisterActivity.this.app.LoginWith(user);
+				
+			} else {
+				String title = getResources().getString(R.string.alrt_title_registration_failed);
+				String message = this.error;
+				int icon = R.drawable.ic_error;
+				AlertDialog dialog = RegisterActivity.this.getAlert(RegisterActivity.this, message, title, icon);
+				dialog.show();
+			}
+		}
+
+		@Override
+		protected void onCancelled() {
+			registrationTask = null;
+			RegisterActivity.this.showProgress(false, registrationFormView, registrationStatusView);
+		}
+	}
+	
+	// An event listener, listening for typing in the password filed
+	private class onPasswordEditorActionListener implements OnEditorActionListener {
+		@Override
+		public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
+			if (actionId == R.id.register || actionId == EditorInfo.IME_NULL) {
+				attemptRegister();
+				return true;
+			}
+			return false;
+		}
+	}
+
+	private class onRegisterButtonClickedListener implements OnClickListener {
+		
+		@Override
+		public void onClick(View v) {
+			attemptRegister();
+		}
+		
+	}
+}

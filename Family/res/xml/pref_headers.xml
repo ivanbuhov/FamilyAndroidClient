@@ -7,4 +7,11 @@
 	        <!-- key/value pairs can be included as arguments for the fragment. -->
 	        <extra android:name="preferences" android:value="@string/pref_header_title_account" />
     </header>
+    <header 
+        android:fragment="com.buhov.family.SettingsFragment"
+        android:title="@string/pref_header_title_others"
+        android:icon="@drawable/ic_pref_others" >
+	        <!-- key/value pairs can be included as arguments for the fragment. -->
+	        <extra android:name="preferences" android:value="@string/pref_header_title_others" />
+    </header>
 </preference-headers>

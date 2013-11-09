@@ -41,3 +41,33 @@
 1383826317368	Rename type 'UserLoginTask'
 1383828933130	Rename local variable 'cancel'
 1383855493852	Delete element
+1383901253431	Rename field 'SERVICE_ROOT'
+1383901376382	Delete element
+1383901405537	Copy package
+1383901415811	Delete element
+1383912485920	Rename local variable 'registrationStatusView'
+1383912525448	Rename local variable 'proggressView'
+1383912583428	Rename local variable 'contentView'
+1383922919025	Rename package 'com.buhov.FamilyHttpClient'
+1383922945591	Rename package 'com.buhov.FamilyHttpClient.Entities'
+1383985215479	Delete elements
+1383985691554	Rename field 'familyClient'
+1383985707316	Rename method 'getFamilyClient'
+1383985907545	Move compilation unit
+1383987685617	Rename resource 'pref_pedigrees.xml'
+1383995017067	Rename local variable 'password'
+1383998568407	Rename field 'knownAccount'
+1384003299822	Rename field 'HEADER_PASSWORD'
+1384004428854	Delete element
+1384006668989	Rename method 'validateUser'
+1384007108766	Rename local variable 'cancelRegistration'
+1384007181410	Rename method 'validateUserForm'
+1384010990124	Copy compilation unit
+1384011077203	Delete element
+1384011501908	Rename type 'RegisterActivity'
+1384011522850	Rename field 'registrationFormView'
+1384011534121	Rename field 'registrationStatusView'
+1384011543455	Rename field 'registrationStatusMessageView'
+1384011605649	Rename resource 'activity_register.xml'
+1384012109832	Rename resource 'register.xml'
+1384014210951	Rename method 'getUser'

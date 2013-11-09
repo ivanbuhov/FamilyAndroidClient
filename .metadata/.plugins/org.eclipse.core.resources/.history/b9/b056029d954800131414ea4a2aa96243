@@ -1,0 +1,39 @@
+package com.buhov.family.FamilyDb;
+
+import android.provider.BaseColumns;
+
+public class FamilyDbHelper {
+
+	static final String DB_NAME = "family.db";
+	static final int DB_VERSION = 1;
+	static final String TABLE_USERS_NAME = "users";
+	static final String TABLE_PEDIGREES_NAME = "pedigrees";
+	static final String TABLE_PEOPLE_NAME = "peopele";
+	
+	static final String C_ID = BaseColumns._ID;
+	static final String C_USERS_USERNAME = "username";
+	static final String C_USERS_AUTHCODE = "authcode";
+	
+	static final String C_PEDIGREES_TITLE = "title";
+	
+	static final String C_PEOPLE_DISPLAYNAME = "displayName";
+	static final String C_PEOPLE_FIRSTNAME = "firstName";
+	static final String C_PEOPLE_MIDDLENAME = "middleName";
+	static final String C_PEOPLE_LASTNAME = "lastName";
+	static final String C_PEOPLE_NICKNAME = "nickname";
+	static final String C_PEOPLE_EMAIL = "email";
+	static final String C_PEOPLE_BIRTHDATE = "birthdate";
+	static final String C_PEOPLE_ISALIVE = "isAlive";
+	static final String C_PEOPLE_ISMALE = "isMale";
+	static final String C_PEOPLE_ADDRESS = "address";
+	static final String C_PEOPLE_PROFESSION = "profession";
+	static final String C_PEOPLE_PEDIGREEID = "pedigreeId";
+	static final String C_PEOPLE_FIRSTPARENTID = "firstParentId";
+	static final String C_PEOPLE_SECONDPARENTID = "secondParentId";
+	static final String C_PEOPLE_SPOUSEID = "spouseId";
+	
+	static final String C_CREATED_AT = "created_at";
+	static final String C_SOURCE = "source";
+	static final String C_TEXT = "txt";
+	static final String C_USER = "user";
+}

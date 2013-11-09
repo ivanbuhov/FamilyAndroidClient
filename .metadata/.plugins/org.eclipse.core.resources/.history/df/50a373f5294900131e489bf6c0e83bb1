@@ -1,0 +1,10 @@
+package com.buhov.family.FamilyDb;
+
+public class FamilyDb {
+	
+	private FamilyDbHelper helper;
+	
+	public FamilyDb(FamilyDbHelper helper) {
+		this.helper = helper;
+	}
+}

@@ -1,0 +1,18 @@
+package com.buhov.family.FamilyDb;
+
+import android.provider.BaseColumns;
+
+public class FamilyDbHelper {
+
+	static final String DB_NAME = "family.db";
+	static final int DB_VERSION = 1;
+	static final String TABLE_USERS_NAME = "users";
+	static final String TABLE_PEDIGREES_NAME = "pedigrees";
+	static final String TABLE_PEOPLE_NAME = "peopele";
+	static final String C_ID = BaseColumns._ID;
+	static final String C_PEDIGREES_TITLE = "title";
+	static final String C_CREATED_AT = "created_at";
+	static final String C_SOURCE = "source";
+	static final String C_TEXT = "txt";
+	static final String C_USER = "user";
+}

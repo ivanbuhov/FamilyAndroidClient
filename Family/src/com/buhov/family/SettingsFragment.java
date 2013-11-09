@@ -15,6 +15,9 @@ public class SettingsFragment extends PreferenceFragment {
         if (settings.equals(resources.getString(R.string.pref_header_title_account))) {
             addPreferencesFromResource(R.xml.pref_account);
         }
+        else if(settings.equals(resources.getString(R.string.pref_header_title_others))) {
+        	addPreferencesFromResource(R.xml.pref_others);
+        }
         // addPreferencesFromResource(R.xml.settings_default);
 	}
 }

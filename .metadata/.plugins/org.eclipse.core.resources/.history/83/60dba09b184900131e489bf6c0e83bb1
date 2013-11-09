@@ -1,0 +1,15 @@
+package com.buhov.family;
+
+import com.buhov.family.FamilyDb.FamilyDbHelper;
+import com.buhov.family.FamilyHttpClient.FamilyHttpClient;
+
+public class FamilyData {
+	
+	private FamilyDbHelper db;
+	private FamilyHttpClient httpClient;
+	
+	public FamilyData(FamilyDbHelper db, FamilyHttpClient httpClient) {
+		this.db = db;
+		this.httpClient = httpClient;
+	}
+}

@@ -24,67 +24,82 @@ public final class R {
         public static final int ic_error=0x7f020000;
         public static final int ic_launcher=0x7f020001;
         public static final int ic_pref_account=0x7f020002;
-        public static final int ic_pref_password=0x7f020003;
-        public static final int ic_pref_username=0x7f020004;
+        public static final int ic_pref_online_mode=0x7f020003;
+        public static final int ic_pref_others=0x7f020004;
+        public static final int ic_pref_password=0x7f020005;
+        public static final int ic_pref_username=0x7f020006;
     }
     public static final class id {
-        public static final int menu_item_register=0x7f090008;
-        public static final int menu_item_settings=0x7f090007;
+        public static final int content_my_pedigrees=0x7f09000a;
+        public static final int input_form=0x7f090002;
+        public static final int login=0x7f090005;
+        public static final int login_button=0x7f090007;
+        public static final int menu_item_login=0x7f09000c;
+        public static final int menu_item_my_pedigrees=0x7f09000b;
+        public static final int menu_item_settings=0x7f09000d;
         public static final int password=0x7f090004;
-        public static final int register=0x7f090005;
+        public static final int progress_my_pedigrees=0x7f090008;
+        public static final int progress_my_pedigrees_message=0x7f090009;
         public static final int register_button=0x7f090006;
-        public static final int register_form=0x7f090002;
-        public static final int register_status=0x7f090000;
-        public static final int register_status_message=0x7f090001;
+        public static final int status=0x7f090000;
+        public static final int status_message=0x7f090001;
         public static final int username=0x7f090003;
     }
     public static final class layout {
-        public static final int activity_my_pedigrees=0x7f030000;
-        public static final int activity_register=0x7f030001;
+        public static final int activity_login=0x7f030000;
+        public static final int activity_my_pedigrees=0x7f030001;
         public static final int activity_settings=0x7f030002;
     }
     public static final class menu {
         public static final int base=0x7f080000;
-        public static final int my_pedigrees=0x7f080001;
-        public static final int register=0x7f080002;
+        public static final int login=0x7f080001;
+        public static final int my_pedigrees=0x7f080002;
         public static final int settings=0x7f080003;
     }
     public static final class string {
-        public static final int action_register=0x7f060010;
+        public static final int action_login=0x7f060018;
+        public static final int alert_title_loading_data_failed=0x7f060011;
+        public static final int alert_title_login_failed=0x7f060010;
         /**  Alerts 
          */
-        public static final int alrt_title_registration_failed=0x7f06000b;
+        public static final int alert_title_registration_failed=0x7f06000f;
         /**  Titles and names 
          */
         public static final int app_name=0x7f060000;
-        public static final int error_field_required=0x7f060016;
-        public static final int error_long_password=0x7f060015;
-        public static final int error_long_username=0x7f060013;
-        public static final int error_short_password=0x7f060014;
-        public static final int error_short_username=0x7f060012;
+        public static final int error_field_required=0x7f06001e;
+        public static final int error_long_password=0x7f06001d;
+        public static final int error_long_username=0x7f06001b;
+        public static final int error_short_password=0x7f06001c;
+        public static final int error_short_username=0x7f06001a;
         /**  My Pedigrees Activity 
          */
-        public static final int hello_world=0x7f06000c;
-        public static final int menu_item_register=0x7f060005;
+        public static final int hello_world=0x7f060012;
+        public static final int login_button_text=0x7f060017;
+        public static final int menu_item_login=0x7f060005;
+        public static final int menu_item_my_pedigrees=0x7f060006;
         /**  Menu items 
          */
         public static final int menu_item_settings=0x7f060004;
         /**  Preferences 
  Preferences Header 
          */
-        public static final int pref_header_title_account=0x7f060006;
-        public static final int pref_key_password=0x7f060009;
+        public static final int pref_header_title_account=0x7f060007;
+        public static final int pref_header_title_others=0x7f060008;
+        public static final int pref_key_online_mode=0x7f06000d;
+        public static final int pref_key_password=0x7f06000b;
         /**  Preferences Titles 
          */
-        public static final int pref_key_username=0x7f060007;
-        public static final int pref_title_password=0x7f06000a;
-        public static final int pref_title_username=0x7f060008;
-        public static final int prompt_password=0x7f06000e;
+        public static final int pref_key_username=0x7f060009;
+        public static final int pref_title_online_mode=0x7f06000e;
+        public static final int pref_title_password=0x7f06000c;
+        public static final int pref_title_username=0x7f06000a;
+        public static final int progress_my_pedigrees_text=0x7f060013;
+        public static final int progressing_text=0x7f060019;
+        public static final int prompt_password=0x7f060015;
         /**  Register Activity 
          */
-        public static final int prompt_username=0x7f06000d;
-        public static final int register_button_text=0x7f06000f;
-        public static final int register_progress_signing_in=0x7f060011;
+        public static final int prompt_username=0x7f060014;
+        public static final int register_button_text=0x7f060016;
         public static final int title_activity_my_pedigrees=0x7f060002;
         public static final int title_activity_register=0x7f060003;
         public static final int title_activity_settings=0x7f060001;
@@ -118,12 +133,11 @@ public final class R {
  All customizations that are NOT specific to a particular API-level can go here. 
          */
         public static final int AppTheme=0x7f070001;
-        public static final int LoginFormContainer=0x7f070003;
-        public static final int RegisterFormContainer=0x7f070002;
+        public static final int LoginFormContainer=0x7f070002;
     }
     public static final class xml {
         public static final int pref_account=0x7f040000;
         public static final int pref_headers=0x7f040001;
-        public static final int pref_pedigrees=0x7f040002;
+        public static final int pref_others=0x7f040002;
     }
 }

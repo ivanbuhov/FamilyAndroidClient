@@ -1,0 +1,46 @@
+package com.buhov.family;
+
+import com.buhov.family.FamilyData.FamilyData;
+import com.buhov.family.FamilyDb.FamilyDbHelper;
+import com.buhov.family.FamilyHttpClient.FamilyHttpClient;
+import com.buhov.family.FamilyHttpClient.Entities.UserDTO;
+
+import android.app.AlertDialog;
+import android.app.Application;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
+import android.content.DialogInterface.*;
+import android.net.ConnectivityManager;
+import android.preference.PreferenceManager;
+
+public class FamilyApplication extends Application {
+	
+	private FamilyData familyData;
+	
+	@Override
+	public void onCreate() {
+		super.onCreate();
+	}
+	
+	public FamilyData getFamilyData() {
+		if(this.familyData == null) {
+			this.familyData = new FamilyData(this, new FamilyDbHelper(this), new FamilyHttpClient());
+		}
+		return this.familyData;
+	}
+	
+	public UserDTO getCurrentUser() {
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		String usernameKey = getResources().getString(R.string.pref_key_username);
+		String passwordKey = getResources().getString(R.string.pref_key_password);
+		String username = preferences.getString(usernameKey, "");
+		String password = preferences.getString(passwordKey, "");
+		return new UserDTO(username, password);
+	}
+	
+	public boolean isOnline() {
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		return (cm.getActiveNetworkInfo() != null);
+	}
+}

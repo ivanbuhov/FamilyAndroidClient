@@ -1,0 +1,9 @@
+package com.buhov.family.FamilyHttpClient;
+
+public class FamilyServiceError {
+	private String displayMessage;
+	
+	public String getDisplayMessage() {
+		return this.displayMessage;
+	}
+}
