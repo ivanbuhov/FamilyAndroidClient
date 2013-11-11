@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <CheckBoxPreference
+        android:key="@string/pref_key_online_mode"
+        android:title="@string/pref_title_online_mode"
+        android:defaultValue="true"
+        android:icon="@drawable/ic_pref_online_mode" />
+
+</PreferenceScreen>

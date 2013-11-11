@@ -9,6 +9,12 @@ public class Pedigree {
 	private int ownerId;
 	private List<Person> people;
 	
+	public Pedigree(int id, String title, int ownerId) {
+		this.id = id;
+		this.title = title;
+		this.ownerId = ownerId;
+	}
+	
 	public int getId() {
 		return id;
 	}
@@ -23,5 +29,10 @@ public class Pedigree {
 	
 	public List<Person> getPeople() {
 		return people;
+	}
+	
+	@Override
+	public String toString() {
+		return this.title;
 	}
 }

@@ -9,17 +9,16 @@ import android.app.Application;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.preference.PreferenceManager;
 
 public class FamilyApplication extends Application {
 	
 	private FamilyData familyData;
-	private User loggedUser;
+	private LoginManager loginManager;
 	
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		this.loggedUser = null;
+		this.loginManager = new LoginManager();
 	}
 	
 	public FamilyData getFamilyData() {
@@ -31,12 +30,8 @@ public class FamilyApplication extends Application {
 		return this.familyData;
 	}
 	
-	public User getLoggedUser() {
-		return this.loggedUser;
-	}
-	
-	public void LoginWith(User user) {
-		this.loggedUser = user;
+	public LoginManager getLoginManager() {
+		return this.loginManager;
 	}
 	
 	public boolean isNetworkConnected() {
@@ -44,11 +39,31 @@ public class FamilyApplication extends Application {
 		NetworkInfo networkInfo = cm.getActiveNetworkInfo();
 		return (networkInfo != null && networkInfo.isConnectedOrConnecting());
 	}
-	
-	public boolean isOnlineModeEnabled() {
-		boolean onlineModeEnabled = PreferenceManager.getDefaultSharedPreferences(this)
-				.getBoolean(this.getResources().getString(R.string.pref_key_online_mode), true);
-		return onlineModeEnabled;
-	}
 
+	public class LoginManager {
+		
+		private User loggedUser;
+		
+		public LoginManager() {
+			this.logOut();
+		}
+		
+		public Boolean hasLoggedUser() {
+			return (this.loggedUser != null);
+		}
+		
+		public User getLoggedUser() {
+			return this.loggedUser;
+		}
+		
+		public void loginWith(User user) {
+			this.loggedUser = new User(user.getUsername(), user.getAuthCode());
+			this.loggedUser.setId(user.getId());
+		}
+		
+		public void logOut() {
+			this.loggedUser = null;
+		}
+	}
+	
 }

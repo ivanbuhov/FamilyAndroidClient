@@ -71,7 +71,9 @@ public class FamilyDbHelper extends SQLiteOpenHelper {
 				+ C_PEOPLE_SECONDPARENTID + " INT, "
 				+ C_PEOPLE_SPOUSEID + " INT ); ";
 		
-		database.execSQL(usersTableSql + pedigreesTableSql + peopleTableSql);
+		database.execSQL(usersTableSql);
+		database.execSQL(pedigreesTableSql);
+		database.execSQL(peopleTableSql);
 	}
 
 	@Override

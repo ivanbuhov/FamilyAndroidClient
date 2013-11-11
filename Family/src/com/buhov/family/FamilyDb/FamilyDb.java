@@ -15,23 +15,27 @@ public class FamilyDb {
 		this.helper = helper;
 	}
 	
-	public void Update(int userId, Pedigree[] pedigrees) {
-		SQLiteDatabase db = this.helper.getWritableDatabase();
-		
-		// Delete all pedigrees from the current user
-		db.delete(FamilyDbHelper.TABLE_NAME_PEDIGREES, FamilyDbHelper.C_PEDIGREES_OWNERID + "=" + userId, null);
-		// Loop over the pedigrees and save them to the database
-		ContentValues values = new ContentValues();
-		for (Pedigree pedigree : pedigrees) {
-			// Insert into database
-			values.clear();
-			values.put(FamilyDbHelper.C_ID, pedigree.getId());
-			values.put(FamilyDbHelper.C_PEDIGREES_TITLE, pedigree.getTitle());
-			values.put(FamilyDbHelper.C_PEDIGREES_OWNERID, pedigree.getOwnerId());
-			db.insertOrThrow(FamilyDbHelper.TABLE_NAME_PEDIGREES, null, values);
+	public void update(int userId, Pedigree[] pedigrees) {
+		SQLiteDatabase db = null;
+		try {
+			db = this.helper.getWritableDatabase();
+			// Delete all pedigrees from the current user
+			db.delete(FamilyDbHelper.TABLE_NAME_PEDIGREES, FamilyDbHelper.C_PEDIGREES_OWNERID + "=" + userId, null);
+			// Loop over the pedigrees and save them to the database
+			ContentValues values = new ContentValues();
+			for (Pedigree pedigree : pedigrees) {
+				// Insert into database
+				values.clear();
+				values.put(FamilyDbHelper.C_ID, pedigree.getId());
+				values.put(FamilyDbHelper.C_PEDIGREES_TITLE, pedigree.getTitle());
+				values.put(FamilyDbHelper.C_PEDIGREES_OWNERID, pedigree.getOwnerId());
+				db.insertOrThrow(FamilyDbHelper.TABLE_NAME_PEDIGREES, null, values);
+			}
+		} finally {
+			if(db != null) {
+				db.close();
+			}
 		}
-		
-		db.close();
 	}
 
 	public void addUser(User user) {
@@ -70,6 +74,35 @@ public class FamilyDb {
 			}
 			
 			return null;
+		} finally {
+			if(db != null) {
+				db.close();
+			}
+		}
+	}
+	
+
+	public Pedigree[] getPedigrees(Integer ownerId) {
+		SQLiteDatabase db = null;
+		try {
+			db = this.helper.getReadableDatabase();
+			Cursor cursor = db.query(FamilyDbHelper.TABLE_NAME_PEDIGREES, new String[] { 
+					FamilyDbHelper.C_ID,
+					FamilyDbHelper.C_PEDIGREES_TITLE,
+					FamilyDbHelper.C_PEDIGREES_OWNERID }, 
+					FamilyDbHelper.C_PEDIGREES_OWNERID + "=?", 
+					new String[] { ownerId.toString() }, null, null, null);
+			Pedigree[] pedigrees = new Pedigree[cursor.getCount()];
+			int currentIndex = 0;
+			while(cursor.moveToNext()) {
+				int pedigreeId = cursor.getInt(0);
+				String pedigreeTitle = cursor.getString(1);
+				int pedigreeOwnerId = cursor.getInt(2);
+				pedigrees[currentIndex] = new Pedigree(pedigreeId, pedigreeTitle, pedigreeOwnerId);
+				currentIndex++;
+			}
+			
+			return pedigrees;
 		} finally {
 			if(db != null) {
 				db.close();

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Titles and names -->
+    <string name="app_name">Family</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="title_activity_my_pedigrees">My Pedigrees</string>
+    <string name="title_activity_register">Register</string>
+    
+    <!-- Menu items -->
+    <string name="menu_item_settings">Settings</string>
+    <string name="menu_item_login">Login/Register</string>
+    <string name="menu_item_my_pedigrees">My Pedigrees</string>
+    
+    <!-- Preferences -->
+    	<!-- Preferences Header -->
+    	<string name="pref_header_title_account">Account</string>
+    	<string name="pref_header_title_others">Others</string>
+    	
+    	<!-- Preferences Titles -->
+    	<string name="pref_title_online_mode">Online mode</string>
+    	<string name="pref_title_update_if_not_updated_more_than">Update if not updated more than:</string>
+    	<string name="pref_summary_update_if_not_updated_more_than">If you try to read data and it has been updated 
+    	    before less than the specified amount of time, the data will be updated again.</string>
+    	
+   	<!-- Alerts -->
+   	<string name="alert_title_registration_failed">Registration failed</string>
+   	<string name="alert_title_login_failed">Login failed</string>
+   	<string name="alert_title_loading_data_failed">Loading data failed</string>
+    	
+   	<!-- My Pedigrees Activity -->
+    <string name="hello_world">Hello world!</string>
+    <string name="progress_my_pedigrees_text">Loading pedigrees</string>
+    
+    
+    <!-- Register Activity -->
+    <string name="prompt_username">Username</string>
+    <string name="prompt_password">Password</string>
+    <string name="register_button_text"><b>Register</b></string>
+    <string name="login_button_text"><b>Login</b></string>
+    <string name="action_login">Login</string>
+    <string name="progressing_text">Loading&#8230;</string>
+    <string name="error_short_username">The username must be no shorter than 5 characters</string>
+    <string name="error_long_username">The username must be no longer than 30 characters</string>
+    <string name="error_short_password">The password must be no shorter than 5 characters</string>
+    <string name="error_long_password">The password must be no longer than 30 characters</string>
+    <string name="error_field_required">This field is required</string>
+    	
+</resources>

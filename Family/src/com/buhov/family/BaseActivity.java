@@ -27,7 +27,7 @@ public class BaseActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -51,8 +51,7 @@ public class BaseActivity extends Activity {
 		
 		return true;
 	}
-
-
+	
 	public AlertDialog getAlert(Context context, String message, String title, int iconResource) {
 		AlertDialog dialog = new AlertDialog.Builder(context).create();
 		if(message != null) {
@@ -66,40 +65,44 @@ public class BaseActivity extends Activity {
 		}
 		return dialog;
 	}
-
-	// Shows the progress UI and hides the login form.
+	
+	// Shows and hides views in the activity.
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-	public void showProgress(final boolean show, final View contentView, final View progressView) {
+	public void toggleView(final boolean show, final View viewToToggle, final View alternativeView) {
+		boolean hasContent = (alternativeView != null);
 		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
 		// for very easy animations. If available, use these APIs to fade-in
 		// the progress spinner.
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
 			int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-			progressView.setVisibility(View.VISIBLE);
-			progressView.animate().setDuration(shortAnimTime)
+			viewToToggle.setVisibility(View.VISIBLE);
+			viewToToggle.animate().setDuration(shortAnimTime)
 					.alpha(show ? 1 : 0)
 					.setListener(new AnimatorListenerAdapter() {
 						@Override
 						public void onAnimationEnd(Animator animation) {
-							progressView.setVisibility(show ? View.VISIBLE : View.GONE);
+							viewToToggle.setVisibility(show ? View.VISIBLE : View.GONE);
 						}
 					});
-
-			contentView.setVisibility(View.VISIBLE);
-			contentView.animate().setDuration(shortAnimTime)
-					.alpha(show ? 0 : 1)
-					.setListener(new AnimatorListenerAdapter() {
-						@Override
-						public void onAnimationEnd(Animator animation) {
-							contentView.setVisibility(show ? View.GONE : View.VISIBLE);
-						}
-					});
+			if(hasContent) {
+				alternativeView.setVisibility(View.VISIBLE);
+				alternativeView.animate().setDuration(shortAnimTime)
+						.alpha(show ? 0 : 1)
+						.setListener(new AnimatorListenerAdapter() {
+							@Override
+							public void onAnimationEnd(Animator animation) {
+								alternativeView.setVisibility(show ? View.GONE : View.VISIBLE);
+							}
+						});
+			}
 		} else {
 			// The ViewPropertyAnimator APIs are not available, so simply show
 			// and hide the relevant UI components.
-			progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-			contentView.setVisibility(show ? View.GONE : View.VISIBLE);
+			viewToToggle.setVisibility(show ? View.VISIBLE : View.GONE);
+			if(hasContent) {
+				alternativeView.setVisibility(show ? View.GONE : View.VISIBLE);
+			}
 		}
 	}
 

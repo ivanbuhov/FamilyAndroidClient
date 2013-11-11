@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <CheckBoxPreference
+        android:key="@+id/pref_key_online_mode"
+        android:title="@string/pref_title_online_mode"
+        android:defaultValue="true"
+        android:icon="@drawable/ic_pref_online_mode" />
+
+    <ListPreference
+            android:key="@string/pref_key_update_if_not_updated_more_than"
+            android:entries="@array/syncFrequency"
+            android:summary="@string/pref_sync_frequency_summary"
+            android:entryValues="@array/syncFrequencyValues"
+            android:title="@string/pref_sync_frequency" />
+    
+</PreferenceScreen>

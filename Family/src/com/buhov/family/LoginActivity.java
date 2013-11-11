@@ -74,7 +74,7 @@ public class LoginActivity extends BaseActivity {
 		if (Utils.validateUserInput(LoginActivity.this, usernameView, passwordView)) {
 			// Show a progress spinner, and kick off a background task to
 			// perform the user login attempt.
-			LoginActivity.this.showProgress(true, inputFormView, statusView);
+			LoginActivity.this.toggleView(true, statusView, inputFormView);
 			registrationTask = new UserRegistrationTask();
 			registrationTask.execute(new UserDTO(username, password));
 		}
@@ -96,7 +96,7 @@ public class LoginActivity extends BaseActivity {
 		if (Utils.validateUserInput(LoginActivity.this, usernameView, passwordView)) {
 			// Show a progress spinner, and kick off a background task to
 			// perform the user login attempt.
-			LoginActivity.this.showProgress(true, inputFormView, statusView);
+			LoginActivity.this.toggleView(true, statusView, inputFormView);
 			loginTask = new UserLoginTask();
 			loginTask.execute(new UserDTO(username, password));
 		}
@@ -113,7 +113,7 @@ public class LoginActivity extends BaseActivity {
 		protected Boolean doInBackground(UserDTO... params) {
 			try {
 				FamilyData data = this.application.getFamilyData();
-				this.user = data.Register(params[0]);
+				this.user = data.register(params[0]);
 				return true;
 			}
 			catch(FamilyDataException e) {
@@ -125,12 +125,12 @@ public class LoginActivity extends BaseActivity {
 		@Override
 		protected void onPostExecute(final Boolean success) {
 			registrationTask = null;
-			LoginActivity.this.showProgress(false, inputFormView, statusView);
+			LoginActivity.this.toggleView(false, statusView, inputFormView);
 
 			if (success) {
-				LoginActivity.this.finish();
+				LoginActivity.this.app.getLoginManager().loginWith(this.user);
 				startActivity(new Intent(LoginActivity.this, MyPedigreesActivity.class));
-				LoginActivity.this.app.LoginWith(user);
+				LoginActivity.this.finish();
 				
 			} else {
 				String title = getResources().getString(R.string.alert_title_registration_failed);
@@ -144,7 +144,7 @@ public class LoginActivity extends BaseActivity {
 		@Override
 		protected void onCancelled() {
 			registrationTask = null;
-			LoginActivity.this.showProgress(false, inputFormView, statusView);
+			LoginActivity.this.toggleView(false, statusView, inputFormView);
 		}
 	}
 	
@@ -159,7 +159,7 @@ public class LoginActivity extends BaseActivity {
 		protected Boolean doInBackground(UserDTO... params) {
 			try {
 				FamilyData data = this.application.getFamilyData();
-				this.user = data.Login(params[0]);
+				this.user = data.login(params[0]);
 				return true;
 			}
 			catch(FamilyDataException e) {
@@ -171,13 +171,12 @@ public class LoginActivity extends BaseActivity {
 		@Override
 		protected void onPostExecute(final Boolean success) {
 			loginTask = null;
-			LoginActivity.this.showProgress(false, inputFormView, statusView);
+			LoginActivity.this.toggleView(false, statusView, inputFormView);
 
 			if (success) {
-				LoginActivity.this.finish();
+				LoginActivity.this.app.getLoginManager().loginWith(user);
 				startActivity(new Intent(LoginActivity.this, MyPedigreesActivity.class));
-				LoginActivity.this.app.LoginWith(user);
-				
+				LoginActivity.this.finish();
 			} else {
 				String title = getResources().getString(R.string.alert_title_login_failed);
 				String message = this.error;
@@ -190,7 +189,7 @@ public class LoginActivity extends BaseActivity {
 		@Override
 		protected void onCancelled() {
 			loginTask = null;
-			LoginActivity.this.showProgress(false, inputFormView, statusView);
+			LoginActivity.this.toggleView(false, statusView, inputFormView);
 		}
 	}
 	

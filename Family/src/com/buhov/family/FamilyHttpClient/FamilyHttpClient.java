@@ -35,37 +35,37 @@ public class FamilyHttpClient {
 		this.gson = new Gson();
 	}
 
-	public User Register(UserDTO user) {
-		return this.PostRequest(SERVICE_REGISTER_URL, user, User.class, null);
+	public User register(UserDTO user) {
+		return this.postRequest(SERVICE_REGISTER_URL, user, User.class, null);
 	}
 	
-	public User Login(UserDTO user) {
-		return this.PostRequest(SERVICE_LOGIN_URL, user, User.class, null);
+	public User login(UserDTO user) {
+		return this.postRequest(SERVICE_LOGIN_URL, user, User.class, null);
 	}
 	
-	public Pedigree[] GetPedigrees(User user) {
-		return this.GetRequest(SERVICE_REDIGREES_URL, Pedigree[].class, user);
+	public Pedigree[] getPedigrees(User user) {
+		return this.getRequest(SERVICE_REDIGREES_URL, Pedigree[].class, user);
 	}
 	
-	private <TResult> TResult GetRequest(String url, Class<TResult> responseEntity, User user) {
+	private <TResult> TResult getRequest(String url, Class<TResult> responseEntity, User user) {
 		HttpGet request = new HttpGet(url);
 		if(user != null) {
 			this.addAuthenticationHeaders(request, user);
 		}
 		
-		return this.Request(request, responseEntity);
+		return this.request(request, responseEntity);
 	}
 	
-	private <TResult> TResult DeleteRequest(String url, Class<TResult> responseEntity, User user) {
+	private <TResult> TResult deleteRequest(String url, Class<TResult> responseEntity, User user) {
 		HttpDelete request = new HttpDelete(url);
 		if(user != null) {
 			this.addAuthenticationHeaders(request, user);
 		}
 		
-		return this.Request(request, responseEntity);
+		return this.request(request, responseEntity);
 	}
 	
-	private <TBody, TResult> TResult PostRequest(String url, TBody entityToSend, Class<TResult> responseEntity, User user) {
+	private <TBody, TResult> TResult postRequest(String url, TBody entityToSend, Class<TResult> responseEntity, User user) {
 		HttpPost request = new HttpPost(url);
 		if(user != null) {
 			this.addAuthenticationHeaders(request, user);
@@ -73,14 +73,14 @@ public class FamilyHttpClient {
 		try {
 			String entityJSON = this.gson.toJson(entityToSend);
 			request.setEntity(new StringEntity(entityJSON));
-			return this.Request(request, responseEntity);
+			return this.request(request, responseEntity);
 		}
 		catch(UnsupportedEncodingException e) {
 			throw new FamilyServiceException("Problem occured while preparing to send the data. Please try again.");
 		}
 	}
 	
-	private <TBody, TResult> TResult PutRequest(String url, TBody entityToSend, Class<TResult> responseEntity, User user) throws UnsupportedEncodingException {
+	private <TBody, TResult> TResult putRequest(String url, TBody entityToSend, Class<TResult> responseEntity, User user) throws UnsupportedEncodingException {
 		HttpPut request = new HttpPut(url);
 		if(user != null) {
 			this.addAuthenticationHeaders(request, user);
@@ -88,10 +88,10 @@ public class FamilyHttpClient {
 		
 		String entityJSON = this.gson.toJson(entityToSend);
 		request.setEntity(new StringEntity(entityJSON));
-		return this.Request(request, responseEntity);
+		return this.request(request, responseEntity);
 	}
 	
-	private <TResult> TResult Request(HttpUriRequest request, Class<TResult> responseEntity) {
+	private <TResult> TResult request(HttpUriRequest request, Class<TResult> responseEntity) {
 		if(!this.app.isNetworkConnected()) {
 			throw new FamilyServiceException("There is no network access.");
 		}
@@ -116,6 +116,9 @@ public class FamilyHttpClient {
 		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_BAD_REQUEST) {
 			FamilyServiceError error = this.gson.fromJson(json.toString(), FamilyServiceError.class);
 			throw new FamilyServiceException(error.getDisplayMessage());
+		}
+		else if(response.getStatusLine().getStatusCode() > HttpStatus.SC_BAD_REQUEST) {
+			throw new FamilyServiceException("An error occured on the server. Please try again later.");
 		}
 		
 		TResult result = this.gson.fromJson(json.toString(), responseEntity);
