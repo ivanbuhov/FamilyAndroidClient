@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+	<item
+        android:id="@+id/menu_item_my_pedigrees"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/context_menu_view"/>
+    
+    <item
+        android:id="@+id/menu_item_login"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/context_menu_edit"/>
+    
+    <item
+        android:id="@+id/menu_item_settings"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/context_menu_delete"/>
+    
+</menu>

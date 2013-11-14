@@ -2,6 +2,7 @@
 <resources>
     <string-array name="update_periods">
         <item name="every_time">Update every time</item>
+        <item name="one_minute">1 minute</item>
         <item name="ten_minutes">10 minutes</item>
         <item name="thirty_minutes">30 minutes</item>
         <item name="two_hours">2 hours</item>
@@ -11,10 +12,12 @@
     
     <string-array name="update_periods_values">
         <item name="every_time">0</item>
-        <item name="ten_minutes">600000</item>
-        <item name="thirty_minutes">1800000</item>
-        <item name="two_hours">2400000</item>
-        <item name="one_day">28800000</item>
+        <item name="one_minute">60</item>
+        <item name="ten_minutes">600</item>
+        <item name="thirty_minutes">1800</item>
+        <item name="two_hours">7200</item>
+        <item name="one_day">86400</item>
         <item name="never">2147483647</item> <!-- Integer's max value -->
     </string-array>
+    
 </resources>

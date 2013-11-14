@@ -34,6 +34,10 @@ public class FamilyApplication extends Application {
 		return this.loginManager;
 	}
 	
+	public int getApiVersion() {
+		return android.os.Build.VERSION.SDK_INT;
+	}
+	
 	public boolean isNetworkConnected() {
 		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo networkInfo = cm.getActiveNetworkInfo();

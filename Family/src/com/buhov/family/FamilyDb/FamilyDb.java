@@ -81,7 +81,6 @@ public class FamilyDb {
 		}
 	}
 	
-
 	public Pedigree[] getPedigrees(Integer ownerId) {
 		SQLiteDatabase db = null;
 		try {
@@ -110,4 +109,19 @@ public class FamilyDb {
 		}
 	}
 
+	
+	public void deletePedigree(User user, Integer pedigreeId) {
+		SQLiteDatabase db = null;
+		try {
+			db = this.helper.getWritableDatabase();
+			// Delete all people from the pedigree
+			db.delete(FamilyDbHelper.TABLE_NAME_PEOPLE, FamilyDbHelper.C_PEOPLE_PEDIGREEID + "=?", new String[] { pedigreeId.toString() });
+			// Delete the pedigree
+			db.delete(FamilyDbHelper.TABLE_NAME_PEDIGREES, FamilyDbHelper.C_ID + "=?", new String[] { pedigreeId.toString() });
+		} finally {
+			if(db != null) {
+				db.close();
+			}
+		}
+	}
 }

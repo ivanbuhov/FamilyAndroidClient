@@ -1,8 +1,0 @@
-package com.buhov.family;
-
-public class FamilyClient {
-	
-	public FamilyClient() {
-		
-	}
-}

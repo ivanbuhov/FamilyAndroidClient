@@ -1,9 +1,6 @@
 package com.buhov.family.FamilyHttpClient;
 
 import java.io.*;
-import java.lang.reflect.Type;
-import java.util.*;
-
 import org.apache.http.*;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
@@ -13,7 +10,6 @@ import org.apache.http.impl.client.*;
 import com.buhov.family.FamilyApplication;
 import com.buhov.family.FamilyHttpClient.Entities.*;
 import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
 
 public class FamilyHttpClient {
 	
@@ -23,7 +19,7 @@ public class FamilyHttpClient {
 	private static final String SERVICE_ROOT_URL = "http://family.apphb.com/api/";
 	private static final String SERVICE_REGISTER_URL = SERVICE_ROOT_URL + "Users/Register";
 	private static final String SERVICE_LOGIN_URL = SERVICE_ROOT_URL + "Users/Login";
-	private static final String SERVICE_REDIGREES_URL = SERVICE_ROOT_URL + "Pedigrees";
+	private static final String SERVICE_PEDIGREES_URL = SERVICE_ROOT_URL + "Pedigrees";
 	
 	private FamilyApplication app;
 	private HttpClient client;
@@ -44,7 +40,11 @@ public class FamilyHttpClient {
 	}
 	
 	public Pedigree[] getPedigrees(User user) {
-		return this.getRequest(SERVICE_REDIGREES_URL, Pedigree[].class, user);
+		return this.getRequest(SERVICE_PEDIGREES_URL, Pedigree[].class, user);
+	}
+	
+	public Pedigree[] deletePedigree(User user, int pedigreeId) {
+		return this.deleteRequest(SERVICE_PEDIGREES_URL + "/" + pedigreeId, Pedigree[].class, user);
 	}
 	
 	private <TResult> TResult getRequest(String url, Class<TResult> responseEntity, User user) {

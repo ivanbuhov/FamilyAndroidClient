@@ -1,7 +1,0 @@
-package com.buhov.family;
-
-import android.preference.PreferenceFragment;
-
-public class SettingsFragment extends PreferenceFragment {
-
-}

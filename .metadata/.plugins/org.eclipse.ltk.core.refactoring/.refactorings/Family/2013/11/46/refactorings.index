@@ -15,3 +15,5 @@
 1384199369604	Rename method 'PutRequest'
 1384199378320	Rename method 'Request'
 1384203116595	Rename method 'Update'
+1384267247147	Rename field 'myPedigreesTask'
+1384267254690	Rename field 'myGetPedigreesTask'

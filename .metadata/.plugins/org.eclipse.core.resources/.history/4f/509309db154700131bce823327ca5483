@@ -1,8 +1,0 @@
-package com.buhov.FamilyHttpClient;
-
-public class FamilyJSONBuilder {
-	
-	public FamilyJSONBuilder() {
-		
-	}
-}

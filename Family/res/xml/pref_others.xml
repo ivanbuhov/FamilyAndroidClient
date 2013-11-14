@@ -14,6 +14,6 @@
             android:entryValues="@array/update_periods_values"
             android:title="@string/pref_title_update_if_not_updated_more_than"
             android:icon="@drawable/ic_pref_update"
-            android:defaultValue="600000" />
+            android:defaultValue="600" />
     
 </PreferenceScreen>

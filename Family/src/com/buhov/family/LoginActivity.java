@@ -177,7 +177,8 @@ public class LoginActivity extends BaseActivity {
 				LoginActivity.this.app.getLoginManager().loginWith(user);
 				startActivity(new Intent(LoginActivity.this, MyPedigreesActivity.class));
 				LoginActivity.this.finish();
-			} else {
+			} 
+			else {
 				String title = getResources().getString(R.string.alert_title_login_failed);
 				String message = this.error;
 				int icon = R.drawable.ic_error;

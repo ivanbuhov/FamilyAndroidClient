@@ -3,21 +3,14 @@ package com.buhov.family.FamilyData;
 import java.util.Date;
 import java.util.HashMap;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
 import com.buhov.family.FamilyApplication;
-import com.buhov.family.MyPedigreesActivity;
 import com.buhov.family.R;
-import com.buhov.family.LoginActivity;
 import com.buhov.family.Utils;
 import com.buhov.family.FamilyDb.FamilyDb;
 import com.buhov.family.FamilyDb.FamilyDbException;
-import com.buhov.family.FamilyDb.FamilyDbHelper;
 import com.buhov.family.FamilyHttpClient.FamilyHttpClient;
 import com.buhov.family.FamilyHttpClient.FamilyServiceException;
 import com.buhov.family.FamilyHttpClient.Entities.Pedigree;
@@ -87,6 +80,20 @@ public class FamilyData {
 		return pedigrees;
 	}
 	
+	public Pedigree[] deletePedigree(User user, int pedigreeId) {
+		try {
+			Pedigree[] pedigrees = this.httpClient.deletePedigree(user, pedigreeId);
+			this.db.update(user.getId(), pedigrees);
+			return pedigrees;
+		}
+		catch(FamilyServiceException e) {
+			throw new FamilyDataException(e.getMessage());
+		}
+		catch(FamilyDbException e) {
+			throw new FamilyDataException(e.getMessage());
+		}
+	}
+	
 	private class UpdatesLogger {
 
 		private HashMap<Integer, Long> pedigreeLists; 
@@ -99,8 +106,9 @@ public class FamilyData {
 
 		private Boolean shouldPedigreeListBeUpdated(Integer ownerId) {
 			if(this.pedigreeLists.containsKey(ownerId)) {
-				long maxSecondsWithoutUpdate = PreferenceManager.getDefaultSharedPreferences(app).getLong(
-						app.getResources().getString(R.string.pref_key_update_if_not_updated_more_than), 600);
+				String prefKey = app.getResources().getString(R.string.pref_key_update_if_not_updated_more_than);
+				String maxSecondsWithoutUpdateAsString = PreferenceManager.getDefaultSharedPreferences(app).getString(prefKey, "600");
+				long maxSecondsWithoutUpdate = Long.parseLong(maxSecondsWithoutUpdateAsString);
 				
 				long lastUpdated = this.pedigreeLists.get(ownerId);
 				long now = (new Date()).getTime();

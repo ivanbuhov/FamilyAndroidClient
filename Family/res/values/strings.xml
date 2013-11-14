@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Common strings -->
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    
     <!-- Titles and names -->
     <string name="app_name">Family</string>
     <string name="title_activity_settings">Settings</string>
@@ -29,13 +33,14 @@
    	<string name="alert_title_registration_failed">Registration failed</string>
    	<string name="alert_title_login_failed">Login failed</string>
    	<string name="alert_title_loading_data_failed">Loading data failed</string>
+   	<string name="alert_title_deletion_failed">Failed to remove the item</string>
     	
    	<!-- My Pedigrees Activity -->
     <string name="hello_world">Hello world!</string>
     <string name="progress_my_pedigrees_text">Loading pedigrees</string>
     
     
-    <!-- Register Activity -->
+    <!-- Login Activity -->
     <string name="prompt_username">Username</string>
     <string name="prompt_password">Password</string>
     <string name="register_button_text"><b>Register</b></string>
@@ -47,5 +52,11 @@
     <string name="error_short_password">The password must be no shorter than 5 characters</string>
     <string name="error_long_password">The password must be no longer than 30 characters</string>
     <string name="error_field_required">This field is required</string>
-    	
+    
+    <!-- My Pedigrees Activity -->
+    <string name="delete_message_pedigree">Are you sure you want to delete this pedigree and all people in it?</string>
+    <string name="context_menu_view">View</string>
+    <string name="context_menu_edit">Edit</string>
+    <string name="context_menu_delete">Delete</string>
+    
 </resources>
