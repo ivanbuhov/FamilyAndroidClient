@@ -27,6 +27,7 @@ public class BaseActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 		if(!(this instanceof LoginActivity) && !this.app.getLoginManager().hasLoggedUser()) {
+			this.finish();
 			this.startActivity(new Intent(this, LoginActivity.class));
 		}
 	}

@@ -4,6 +4,7 @@ import java.util.List;
 
 import android.content.Intent;
 import android.preference.PreferenceActivity;
+import android.view.Menu;
 import android.view.MenuItem;
 
 public class SettingsActivity extends PreferenceActivity {
@@ -11,6 +12,13 @@ public class SettingsActivity extends PreferenceActivity {
     public void onBuildHeaders(List<Header> target) {
         loadHeadersFromResource(R.xml.pref_headers, target);
     }
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.settings, menu);
+		return true;
+	}
 	
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {

@@ -1,0 +1,39 @@
+package com.buhov.family.FamilyHttpClient.Entities;
+
+import java.util.List;
+
+public class PedigreeFull {
+	
+	private int id;
+	private String title;
+	private int ownerId;
+	private List<Person> people;
+	
+	public int getId() {
+		return this.id;
+	}
+	
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	public String getTitle() {
+		return this.title;
+	}
+	
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	
+	public int getOwnerId() {
+		return this.ownerId;
+	}
+	
+	public void setOwnerId(int ownerId) {
+		this.ownerId = ownerId;
+	}
+
+	public List<Person> getPeople() {
+		return this.people;
+	}
+}

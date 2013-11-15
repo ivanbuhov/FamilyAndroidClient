@@ -17,3 +17,21 @@
 1384203116595	Rename method 'Update'
 1384267247147	Rename field 'myPedigreesTask'
 1384267254690	Rename field 'myGetPedigreesTask'
+1384456429684	Copy compilation unit
+1384509755156	Delete element
+1384513213341	Rename type 'DummySectionFragment'
+1384513241998	Rename resource 'fragment_pedigree_dummy.xml'
+1384515825638	Delete element
+1384515850751	Delete element
+1384515858107	Delete element
+1384515942674	Delete element
+1384516516373	Rename resource 'fragment_pedigree_dummy.xml'
+1384516545235	Rename type 'DummySectionFragment'
+1384516561436	Rename type 'PedigreeListSectionFragment'
+1384516959027	Rename type 'PedigreeItemClickListener'
+1384517062508	Delete element
+1384520561499	Rename local variable 'pedigrees'
+1384526330864	Rename method 'personListUpdated'
+1384526349758	Rename method 'shouldPersonListBeUpdated'
+1384526377233	Rename field 'personLists'
+1384528995052	Delete element

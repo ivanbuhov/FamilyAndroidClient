@@ -1,8 +1,0 @@
-package com.buhov.FamilyHttpClient.Entities;
-
-public class Error {
-	private String displayMessage;
-	public String getDisplayMessage() {
-		return this.displayMessage;
-	}
-}

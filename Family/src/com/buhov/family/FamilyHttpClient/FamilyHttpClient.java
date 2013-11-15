@@ -43,8 +43,21 @@ public class FamilyHttpClient {
 		return this.getRequest(SERVICE_PEDIGREES_URL, Pedigree[].class, user);
 	}
 	
+	public PedigreeFull getPedigree(User user, int pedigreeId) {
+		return this.getRequest(SERVICE_PEDIGREES_URL + "/" + pedigreeId, PedigreeFull.class, user);
+	}
+	
+	public Pedigree[] addPedigree(User user, PedigreeDTO newPedigree) {
+		return this.postRequest(SERVICE_PEDIGREES_URL, newPedigree, Pedigree[].class, user);
+	}
+	
 	public Pedigree[] deletePedigree(User user, int pedigreeId) {
 		return this.deleteRequest(SERVICE_PEDIGREES_URL + "/" + pedigreeId, Pedigree[].class, user);
+	}
+	
+	public Pedigree[] updatePedigree(User user, PedigreeNew pedigreeNew) {
+		PedigreeDTO content = new PedigreeDTO(pedigreeNew.getTitle());
+		return this.putRequest(SERVICE_PEDIGREES_URL + "/" + pedigreeNew.getId(), content, Pedigree[].class, user);
 	}
 	
 	private <TResult> TResult getRequest(String url, Class<TResult> responseEntity, User user) {
@@ -72,7 +85,7 @@ public class FamilyHttpClient {
 		}
 		try {
 			String entityJSON = this.gson.toJson(entityToSend);
-			request.setEntity(new StringEntity(entityJSON));
+			request.setEntity(new StringEntity(entityJSON, "UTF-8"));
 			return this.request(request, responseEntity);
 		}
 		catch(UnsupportedEncodingException e) {
@@ -80,15 +93,19 @@ public class FamilyHttpClient {
 		}
 	}
 	
-	private <TBody, TResult> TResult putRequest(String url, TBody entityToSend, Class<TResult> responseEntity, User user) throws UnsupportedEncodingException {
+	private <TBody, TResult> TResult putRequest(String url, TBody entityToSend, Class<TResult> responseEntity, User user) {
 		HttpPut request = new HttpPut(url);
 		if(user != null) {
 			this.addAuthenticationHeaders(request, user);
 		}
-		
-		String entityJSON = this.gson.toJson(entityToSend);
-		request.setEntity(new StringEntity(entityJSON));
-		return this.request(request, responseEntity);
+		try {
+			String entityJSON = this.gson.toJson(entityToSend);
+			request.setEntity(new StringEntity(entityJSON, "UTF-8"));
+			return this.request(request, responseEntity);
+		}
+		catch(UnsupportedEncodingException e) {
+			throw new FamilyServiceException("Problem occured while preparing to send the data. Please try again.");
+		}
 	}
 	
 	private <TResult> TResult request(HttpUriRequest request, Class<TResult> responseEntity) {

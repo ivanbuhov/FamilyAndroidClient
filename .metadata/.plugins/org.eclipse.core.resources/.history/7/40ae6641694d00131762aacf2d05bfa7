@@ -1,0 +1,142 @@
+package com.buhov.family.FamilyHttpClient;
+
+import java.io.*;
+import org.apache.http.*;
+import org.apache.http.client.*;
+import org.apache.http.client.methods.*;
+import org.apache.http.entity.*;
+import org.apache.http.impl.client.*;
+
+import com.buhov.family.FamilyApplication;
+import com.buhov.family.FamilyHttpClient.Entities.*;
+import com.google.gson.*;
+
+public class FamilyHttpClient {
+	
+	private static final String HEADER_USERNAME = "X-Family-Username";
+	private static final String HEADER_AUTHCODE = "X-Family-AuthCode";
+	
+	private static final String SERVICE_ROOT_URL = "http://family.apphb.com/api/";
+	private static final String SERVICE_REGISTER_URL = SERVICE_ROOT_URL + "Users/Register";
+	private static final String SERVICE_LOGIN_URL = SERVICE_ROOT_URL + "Users/Login";
+	private static final String SERVICE_PEDIGREES_URL = SERVICE_ROOT_URL + "Pedigrees";
+	
+	private FamilyApplication app;
+	private HttpClient client;
+	private Gson gson;
+	
+	public FamilyHttpClient(FamilyApplication application) {
+		this.app = application;
+		this.client = new DefaultHttpClient();
+		this.gson = new Gson();
+	}
+
+	public User register(UserDTO user) {
+		return this.postRequest(SERVICE_REGISTER_URL, user, User.class, null);
+	}
+	
+	public User login(UserDTO user) {
+		return this.postRequest(SERVICE_LOGIN_URL, user, User.class, null);
+	}
+	
+	public Pedigree[] getPedigrees(User user) {
+		return this.getRequest(SERVICE_PEDIGREES_URL, Pedigree[].class, user);
+	}
+	
+	public Pedigree[] deletePedigree(User user, int pedigreeId) {
+		return this.deleteRequest(SERVICE_PEDIGREES_URL + "/" + pedigreeId, Pedigree[].class, user);
+	}
+	
+	public Pedigree[] updatePedigree(User user, PedigreeNew pedigreeNew) {
+		PedigreeDTO content = new PedigreeDTO(pedigreeNew.getTitle());
+		return this.putRequest(SERVICE_PEDIGREES_URL + "/" + pedigreeNew.getId(), content, Pedigree[].class, user);
+	}
+	
+	private <TResult> TResult getRequest(String url, Class<TResult> responseEntity, User user) {
+		HttpGet request = new HttpGet(url);
+		if(user != null) {
+			this.addAuthenticationHeaders(request, user);
+		}
+		
+		return this.request(request, responseEntity);
+	}
+	
+	private <TResult> TResult deleteRequest(String url, Class<TResult> responseEntity, User user) {
+		HttpDelete request = new HttpDelete(url);
+		if(user != null) {
+			this.addAuthenticationHeaders(request, user);
+		}
+		
+		return this.request(request, responseEntity);
+	}
+	
+	private <TBody, TResult> TResult postRequest(String url, TBody entityToSend, Class<TResult> responseEntity, User user) {
+		HttpPost request = new HttpPost(url);
+		if(user != null) {
+			this.addAuthenticationHeaders(request, user);
+		}
+		try {
+			String entityJSON = this.gson.toJson(entityToSend);
+			request.setEntity(new StringEntity(entityJSON, "UTF-8"));
+			return this.request(request, responseEntity);
+		}
+		catch(UnsupportedEncodingException e) {
+			throw new FamilyServiceException("Problem occured while preparing to send the data. Please try again.");
+		}
+	}
+	
+	private <TBody, TResult> TResult putRequest(String url, TBody entityToSend, Class<TResult> responseEntity, User user) {
+		HttpPut request = new HttpPut(url);
+		if(user != null) {
+			this.addAuthenticationHeaders(request, user);
+		}
+		try {
+			String entityJSON = this.gson.toJson(entityToSend);
+			request.setEntity(new StringEntity(entityJSON, "UTF-8"));
+			return this.request(request, responseEntity);
+		}
+		catch(UnsupportedEncodingException e) {
+			throw new FamilyServiceException("Problem occured while preparing to send the data. Please try again.");
+		}
+	}
+	
+	private <TResult> TResult request(HttpUriRequest request, Class<TResult> responseEntity) {
+		if(!this.app.isNetworkConnected()) {
+			throw new FamilyServiceException("There is no network access.");
+		}
+		
+		HttpResponse response;
+		StringBuilder json = new StringBuilder();
+		try {
+			request.addHeader("Accept", "application/json");
+			request.addHeader("Content-Type", "application/json");
+			response = this.client.execute(request);
+			BufferedReader reader = new BufferedReader(
+					new InputStreamReader(response.getEntity().getContent()));
+			String line;
+			while ((line = reader.readLine()) != null) {
+				json.append(line);
+			}
+		}
+		catch(Exception e) {
+			throw new FamilyServiceException("Problem occured while connecting to the server. Please check your internet connection and try again.");
+		}
+		
+		if (response.getStatusLine().getStatusCode() == HttpStatus.SC_BAD_REQUEST) {
+			FamilyServiceError error = this.gson.fromJson(json.toString(), FamilyServiceError.class);
+			throw new FamilyServiceException(error.getDisplayMessage());
+		}
+		else if(response.getStatusLine().getStatusCode() > HttpStatus.SC_BAD_REQUEST) {
+			throw new FamilyServiceException("An error occured on the server. Please try again later.");
+		}
+		
+		TResult result = this.gson.fromJson(json.toString(), responseEntity);
+		return result;
+	}
+	
+	private void addAuthenticationHeaders(HttpRequest request, User user) {
+		request.addHeader(HEADER_USERNAME, user.getUsername());
+		request.addHeader(HEADER_AUTHCODE, user.getAuthCode());
+	}
+}
+

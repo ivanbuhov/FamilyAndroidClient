@@ -1,22 +1,28 @@
 package com.buhov.family;
 
+import com.buhov.family.AddPedigreeFragment.PedigreeAddHandler;
+import com.buhov.family.EditPedigreeFragment.PedigreeEditHandler;
 import com.buhov.family.FamilyData.FamilyData;
 import com.buhov.family.FamilyData.FamilyDataException;
 import com.buhov.family.FamilyHttpClient.Entities.*;
 
 import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.*;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
-public class MyPedigreesActivity extends BaseActivity {
+public class MyPedigreesActivity extends BaseActivity implements PedigreeEditHandler, PedigreeAddHandler {
 
+	private static final String ADD_DIALOG_TAG = "add_dialog_tag";
+	private static final String EDIT_DIALOG_TAG = "edit_dialog_tag";
+	
 	private View progressView;
 	private Pedigree[] pedigrees;
 	private ListView contentListView;
@@ -25,7 +31,9 @@ public class MyPedigreesActivity extends BaseActivity {
 	private int selectedPosition = -1;
 	
 	private GetMyPedigreesTask getMyPedigreesTask;
+	private AddPedigreeTask addPedigreeTask;
 	private DeletePedigreeTask deletePedigreeTask;
+	private UpdatePedigreeTask updatePedigreeTask;
 	private ArrayAdapter<Pedigree> pedigreesAdapter;
 	
     @Override
@@ -36,25 +44,50 @@ public class MyPedigreesActivity extends BaseActivity {
         this.contentListView = (ListView) findViewById(R.id.content_my_pedigrees);
         this.getMyPedigreesTask = null;
         this.pedigreesAdapter = null;
-        // Register listeners for context menu
-        this.contentListView.setOnItemLongClickListener(new PedigreeItemClickListener());
+        // Register listeners for list events (regular click and long click)
+        this.contentListView.setOnItemClickListener(new PedigreeItemClickListener());
+        this.contentListView.setOnItemLongClickListener(new PedigreeItemLongClickListener());
     }
     
     @Override
     protected void onResume() {
     	super.onResume();
     	// Loading the pedigrees
-        this.attemptGetMyPedigrees();
+        this.attemptGetMyPedigrees(false);
     }
     
-    private void attemptGetMyPedigrees() {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	super.onCreateOptionsMenu(menu);
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.my_pedigrees, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onMenuItemSelected(int featureId, MenuItem item) {
+    	switch(item.getItemId()){
+			case R.id.menu_item_add_pedigree:
+				this.showAddPedigreeDialog();
+			break;
+			case R.id.menu_item_refresh_pedigree:
+				this.attemptGetMyPedigrees(true);
+			break;
+			default:
+				return super.onMenuItemSelected(featureId, item);
+		}
+    	
+    	return true;
+    }
+    
+    private void attemptGetMyPedigrees(boolean obligatoryServerUpdate) {
     	if (this.getMyPedigreesTask != null) {
 			return;
 		}
     	
     	if(this.app.getLoginManager().hasLoggedUser()) {
         	MyPedigreesActivity.this.toggleView(true, progressView, null);
-        	this.getMyPedigreesTask = new GetMyPedigreesTask();
+        	this.getMyPedigreesTask = new GetMyPedigreesTask(obligatoryServerUpdate);
         	this.getMyPedigreesTask.execute(this.app.getLoginManager().getLoggedUser());
         }
 	}
@@ -71,22 +104,45 @@ public class MyPedigreesActivity extends BaseActivity {
         }
     }
 
-	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	super.onCreateOptionsMenu(menu);
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.my_pedigrees, menu);
-        return true;
+    private void attemptUpdatePedigree(PedigreeNew newPedigree) {
+    	if (this.updatePedigreeTask != null) {
+			return;
+		}
+    	
+    	if(this.app.getLoginManager().hasLoggedUser()) {
+        	MyPedigreesActivity.this.toggleView(true, progressView, contentListView);
+        	this.updatePedigreeTask = new UpdatePedigreeTask(this.app.getLoginManager().getLoggedUser());
+        	this.updatePedigreeTask.execute(newPedigree);
+        }
     }
-	
-	public void refreshList() {
+    
+    private void attemptAddPedigree(PedigreeDTO newPedigree) {
+    	if (this.addPedigreeTask != null) {
+			return;
+		}
+    	
+    	if(this.app.getLoginManager().hasLoggedUser()) {
+        	MyPedigreesActivity.this.toggleView(true, progressView, contentListView);
+        	this.addPedigreeTask = new AddPedigreeTask(this.app.getLoginManager().getLoggedUser());
+        	this.addPedigreeTask.execute(newPedigree);
+        }
+	}
+    
+    private void attemptViewPedigree(Pedigree pedigree) {
+    	Intent intent = new Intent(this, PedigreeActivity.class);
+    	intent.putExtra(PedigreeActivity.EXTRA_PEDIGREE_ID, pedigree.getId());
+    	intent.putExtra(PedigreeActivity.EXTRA_PEDIGREE_TITLE, pedigree.getTitle());
+    	intent.putExtra(PedigreeActivity.EXTRA_PEDIGREE_OWNERID, pedigree.getOwnerId());
+    	startActivity(intent);
+    }
+    
+	private void refreshList() {
 		pedigreesAdapter = new ArrayAdapter<Pedigree>(MyPedigreesActivity.this, 
 				android.R.layout.simple_list_item_1, android.R.id.text1, this.pedigrees);
 		contentListView.setAdapter(pedigreesAdapter);
 	}
 	
-	
-    public AlertDialog getPedigreeDeletionAlert(String title) {
+    private AlertDialog getPedigreeDeletionAlert(String title) {
     	
     	if(this.deletionAlert == null) {
     		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
@@ -105,7 +161,6 @@ public class MyPedigreesActivity extends BaseActivity {
     			public void onClick(DialogInterface dialog, int which) {
     				Pedigree selectedPedigree = (Pedigree)contentListView.getItemAtPosition(selectedPosition);
     				attemptDeletePedigree(selectedPedigree.getId());
-					attemptGetMyPedigrees();
     			}
     		});
     		
@@ -116,16 +171,39 @@ public class MyPedigreesActivity extends BaseActivity {
 		return this.deletionAlert;
 	}
     
-
-    public class GetMyPedigreesTask extends AsyncTask<User, Void, Boolean> {
+    private void showEditPedigreeDialog(Pedigree pedigree) {
+    	FragmentManager manager = getFragmentManager();
+    	EditPedigreeFragment dialog = new EditPedigreeFragment();
+    	// Set arguments to the dialog
+    	Bundle arguments = new Bundle();
+    	arguments.putInt(EditPedigreeFragment.PEDIGREE_ID_KEY, pedigree.getId());
+    	arguments.putString(EditPedigreeFragment.PEDIGREE_TITLE_KEY, pedigree.getTitle());
+    	arguments.putInt(EditPedigreeFragment.PEDIGREE_OWNERID_KEY, pedigree.getOwnerId());
+    	dialog.setArguments(arguments);
+    	
+    	dialog.show(manager, EDIT_DIALOG_TAG);
+    }
+    
+    private void showAddPedigreeDialog() {
+    	FragmentManager manager = getFragmentManager();
+    	AddPedigreeFragment dialog = new AddPedigreeFragment();
+    	dialog.show(manager, ADD_DIALOG_TAG);
+    }
+    
+    private class GetMyPedigreesTask extends AsyncTask<User, Void, Boolean> {
 		
+    	private boolean obligatoryServerUpdate;
 		private String error;
+		
+		public GetMyPedigreesTask(boolean obligatoryServerUpdate) {
+			this.obligatoryServerUpdate = obligatoryServerUpdate;
+		}
 		
 		@Override
 		protected Boolean doInBackground(User... params) {
 			try {
 				FamilyData data = MyPedigreesActivity.this.app.getFamilyData();
-				MyPedigreesActivity.this.pedigrees = data.getPedigrees(params[0]);
+				MyPedigreesActivity.this.pedigrees = data.getPedigrees(params[0], this.obligatoryServerUpdate);
 				return true;
 			}
 			catch(FamilyDataException e) {
@@ -158,6 +236,56 @@ public class MyPedigreesActivity extends BaseActivity {
 			MyPedigreesActivity.this.toggleView(false, progressView, null);
 		}
 	}
+    
+    private class UpdatePedigreeTask extends AsyncTask<PedigreeNew, Void, Boolean> {
+
+    	private User user;
+    	private String error = null;
+    	
+    	public UpdatePedigreeTask(User user) {
+    		if(user == null) {
+				throw new RuntimeException("No user specified.");
+			}
+    		this.user = user;
+    	}
+    	
+		@Override
+		protected Boolean doInBackground(PedigreeNew... params) {
+			try {
+				FamilyData data = MyPedigreesActivity.this.app.getFamilyData();
+				MyPedigreesActivity.this.pedigrees = data.updatePedigree(this.user, params[0]);
+				return true;
+			}
+			catch(FamilyDataException e) {
+				this.error = e.getMessage();
+				return false;
+			}
+		}
+		
+		@Override
+		protected void onPostExecute(final Boolean success) {
+			updatePedigreeTask = null;
+
+			if (success) {
+				MyPedigreesActivity.this.refreshList();
+			} 
+			else {
+				String title = getResources().getString(R.string.alert_title_update_failed);
+				String message = this.error;
+				int icon = R.drawable.ic_error;
+				AlertDialog dialog = MyPedigreesActivity.this.getAlert(MyPedigreesActivity.this, message, title, icon);
+				dialog.show();
+			}
+			
+			MyPedigreesActivity.this.toggleView(false, progressView, contentListView);
+		}
+
+		@Override
+		protected void onCancelled() {
+			updatePedigreeTask = null;
+			MyPedigreesActivity.this.toggleView(false, progressView, contentListView);
+		}
+    }
     
     private class DeletePedigreeTask extends AsyncTask<Integer, Void, Boolean> {
 
@@ -209,6 +337,56 @@ public class MyPedigreesActivity extends BaseActivity {
 		}
     }
 
+    private class AddPedigreeTask extends AsyncTask<PedigreeDTO, Void, Boolean> {
+
+    	private User user;
+    	private String error = null;
+    	
+    	public AddPedigreeTask(User user) {
+    		if(user == null) {
+				throw new RuntimeException("No user specified.");
+			}
+    		this.user = user;
+    	}
+    	
+		@Override
+		protected Boolean doInBackground(PedigreeDTO... params) {
+			try {
+				FamilyData data = MyPedigreesActivity.this.app.getFamilyData();
+				MyPedigreesActivity.this.pedigrees = data.addPedigree(this.user, params[0]);
+				return true;
+			}
+			catch(FamilyDataException e) {
+				this.error = e.getMessage();
+				return false;
+			}
+		}
+		
+		@Override
+		protected void onPostExecute(final Boolean success) {
+			addPedigreeTask = null;
+
+			if (success) {
+				MyPedigreesActivity.this.refreshList();
+			} 
+			else {
+				String title = getResources().getString(R.string.alert_title_addition_failed);
+				String message = this.error;
+				int icon = R.drawable.ic_error;
+				AlertDialog dialog = MyPedigreesActivity.this.getAlert(MyPedigreesActivity.this, message, title, icon);
+				dialog.show();
+			}
+			
+			MyPedigreesActivity.this.toggleView(false, progressView, contentListView);
+		}
+
+		@Override
+		protected void onCancelled() {
+			addPedigreeTask = null;
+			MyPedigreesActivity.this.toggleView(false, progressView, contentListView);
+		}
+    }
+
     private class PedigreesListActionModeCallback implements ActionMode.Callback {
 
     	private int selectedPosition;
@@ -225,15 +403,18 @@ public class MyPedigreesActivity extends BaseActivity {
     	
 		@Override
 		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+			Pedigree selectedPedigree = (Pedigree)contentListView.getItemAtPosition(this.selectedPosition);
+			
 			switch(item.getItemId()) {
 				case R.id.context_menu_view:
-					Toast.makeText(MyPedigreesActivity.this, "View", Toast.LENGTH_SHORT).show();
+					MyPedigreesActivity.this.attemptViewPedigree(selectedPedigree);
+					mode.finish();
 				break;
 				case R.id.context_menu_edit:
-					Toast.makeText(MyPedigreesActivity.this, "Edit", Toast.LENGTH_SHORT).show();
+					MyPedigreesActivity.this.showEditPedigreeDialog(selectedPedigree);
+					mode.finish();
 				break;
 				case R.id.context_menu_delete:
-					Pedigree selectedPedigree = (Pedigree)contentListView.getItemAtPosition(this.selectedPosition);
 					getPedigreeDeletionAlert(selectedPedigree.getTitle()).show();
 					mode.finish();
 				break;
@@ -257,7 +438,7 @@ public class MyPedigreesActivity extends BaseActivity {
 		}
     }
     
-    private class PedigreeItemClickListener implements AdapterView.OnItemLongClickListener {
+    private class PedigreeItemLongClickListener implements AdapterView.OnItemLongClickListener {
 
 		@Override
 		public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -272,5 +453,23 @@ public class MyPedigreesActivity extends BaseActivity {
 	    }
     	
     }
+
+    private class PedigreeItemClickListener implements AdapterView.OnItemClickListener {
+
+		@Override
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			Pedigree pedigree = (Pedigree)contentListView.getItemAtPosition(position);
+			attemptViewPedigree(pedigree);
+		}
+    }
     
+	@Override
+	public void onPedigreeEditionFinished(PedigreeNew newPedigree) {
+		this.attemptUpdatePedigree(newPedigree);
+	}
+	
+	@Override
+	public void onPedigreeAdditionFinished(PedigreeDTO newPedigree) {
+		this.attemptAddPedigree(newPedigree);
+	}
 }

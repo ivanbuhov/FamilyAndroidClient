@@ -14,6 +14,9 @@ import com.buhov.family.FamilyDb.FamilyDbException;
 import com.buhov.family.FamilyHttpClient.FamilyHttpClient;
 import com.buhov.family.FamilyHttpClient.FamilyServiceException;
 import com.buhov.family.FamilyHttpClient.Entities.Pedigree;
+import com.buhov.family.FamilyHttpClient.Entities.PedigreeDTO;
+import com.buhov.family.FamilyHttpClient.Entities.PedigreeFull;
+import com.buhov.family.FamilyHttpClient.Entities.PedigreeNew;
 import com.buhov.family.FamilyHttpClient.Entities.User;
 import com.buhov.family.FamilyHttpClient.Entities.UserDTO;
 
@@ -58,26 +61,64 @@ public class FamilyData {
 		}
 	}
 	
-	public Pedigree[] getPedigrees(User user) {
+	public Pedigree[] getPedigrees(User user, boolean obligatoryServerUpdate) {
 		Pedigree[] pedigrees;
 		
 		try {
-			if(this.updateLogger.shouldPedigreeListBeUpdated(user.getId()) && this.app.isNetworkConnected()) {
+			if(obligatoryServerUpdate || (this.updateLogger.shouldPedigreeListBeUpdated(user.getId()) && this.app.isNetworkConnected())) {
 				pedigrees = this.httpClient.getPedigrees(user);
 				this.db.update(user.getId(), pedigrees);
 				this.updateLogger.pedigreeListUpdated(user.getId());
-				return pedigrees;
 			}
 			else {
 				pedigrees = this.db.getPedigrees(user.getId());
 			}
-		} catch(FamilyServiceException e) {
+		} 
+		catch(FamilyServiceException e) {
 			throw new FamilyDataException(e.getMessage());
-		} catch(FamilyDbException e) {
+		} 
+		catch(FamilyDbException e) {
 			throw new FamilyDataException("An error ocured while fetching the data from the database. Please try again.");
 		}
 		
 		return pedigrees;
+	}
+	
+	public PedigreeFull getPedigree(User user, int pedigreeId, boolean obligatoryServerUpdate) {
+		PedigreeFull pedigree;
+		
+		try {
+			if(obligatoryServerUpdate || (this.updateLogger.shouldPedigreeBeUpdated(pedigreeId) && this.app.isNetworkConnected())) {
+				pedigree = this.httpClient.getPedigree(user, pedigreeId);
+				this.db.update(pedigreeId, pedigree);
+				this.updateLogger.pedigreeUpdated(pedigreeId);
+			}
+			else {
+				pedigree = this.db.getPedigree(pedigreeId);
+			}
+		} 
+		catch(FamilyServiceException e) {
+			throw new FamilyDataException(e.getMessage());
+		} 
+		catch(FamilyDbException e) {
+			throw new FamilyDataException("An error ocured while fetching the data from the database. Please try again.");
+		}
+		
+		return pedigree;
+	}
+	
+	public Pedigree[] addPedigree(User user, PedigreeDTO newPedigree) {
+		try {
+			Pedigree[] pedigrees = this.httpClient.addPedigree(user, newPedigree);
+			this.db.update(user.getId(), pedigrees);
+			return pedigrees;
+		}
+		catch(FamilyServiceException e) {
+			throw new FamilyDataException(e.getMessage());
+		}
+		catch(FamilyDbException e) {
+			throw new FamilyDataException(e.getMessage());
+		}
 	}
 	
 	public Pedigree[] deletePedigree(User user, int pedigreeId) {
@@ -94,14 +135,28 @@ public class FamilyData {
 		}
 	}
 	
+	public Pedigree[] updatePedigree(User user, PedigreeNew pedigreeNew) {
+		try {
+			Pedigree[] pedigrees = this.httpClient.updatePedigree(user, pedigreeNew);
+			this.db.update(user.getId(), pedigrees);
+			return pedigrees;
+		}
+		catch(FamilyServiceException e) {
+			throw new FamilyDataException(e.getMessage());
+		}
+		catch(FamilyDbException e) {
+			throw new FamilyDataException(e.getMessage());
+		}
+	}
+	
 	private class UpdatesLogger {
 
 		private HashMap<Integer, Long> pedigreeLists; 
-		private HashMap<Integer, Long> personLists;
+		private HashMap<Integer, Long> pedigrees;
 
 		public UpdatesLogger() {
 			this.pedigreeLists = new HashMap<Integer, Long>();
-			this.personLists = new HashMap<Integer, Long>();
+			this.pedigrees = new HashMap<Integer, Long>();
 		}
 
 		private Boolean shouldPedigreeListBeUpdated(Integer ownerId) {
@@ -121,12 +176,13 @@ public class FamilyData {
 			return true;
 		}
 
-		private Boolean shouldPersonListBeUpdated(Integer pedigreeId) {
-			if(this.personLists.containsKey(pedigreeId)) {
-				long maxSecondsWithoutUpdate = PreferenceManager.getDefaultSharedPreferences(app).getLong(
-						app.getResources().getString(R.string.pref_key_update_if_not_updated_more_than), 600);
+		private Boolean shouldPedigreeBeUpdated(Integer pedigreeId) {
+			if(this.pedigrees.containsKey(pedigreeId)) {
+				String prefKey = app.getResources().getString(R.string.pref_key_update_if_not_updated_more_than);
+				String maxSecondsWithoutUpdateAsString = PreferenceManager.getDefaultSharedPreferences(app).getString(prefKey, "600");
+				long maxSecondsWithoutUpdate = Long.parseLong(maxSecondsWithoutUpdateAsString);
 				
-				long lastUpdated = this.personLists.get(pedigreeId);
+				long lastUpdated = this.pedigrees.get(pedigreeId);
 				long now = (new Date()).getTime();
 				long secondsElapsed = (now - lastUpdated) / 1000;
 				if(secondsElapsed < maxSecondsWithoutUpdate) {
@@ -142,9 +198,11 @@ public class FamilyData {
 			this.pedigreeLists.put(ownerId, now);
 		}
 
-		private void personListUpdated(Integer pedigreeId) {
+		private void pedigreeUpdated(Integer pedigreeId) {
 			long now = (new Date()).getTime();
-			this.personLists.put(pedigreeId, now);
+			this.pedigrees.put(pedigreeId, now);
 		}
 	}
+
+	
 }
