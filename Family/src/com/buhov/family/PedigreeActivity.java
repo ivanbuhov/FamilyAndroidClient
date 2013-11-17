@@ -1,5 +1,6 @@
 package com.buhov.family;
 
+import com.buhov.family.PedigreeNode.PersonNode;
 import com.buhov.family.FamilyData.FamilyData;
 import com.buhov.family.FamilyData.FamilyDataException;
 import com.buhov.family.FamilyHttpClient.Entities.Pedigree;
@@ -11,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 public class PedigreeActivity extends BaseActivity {
@@ -19,22 +21,29 @@ public class PedigreeActivity extends BaseActivity {
 	public static final String EXTRA_PEDIGREE_TITLE = "EXTRA_PEDIGREE_TITLE";
 	public static final String EXTRA_PEDIGREE_OWNERID = "EXTRA_PEDIGREE_OWNERID";
 
-	private Pedigree pedigree;
+	private Pedigree pedigreeFromIntent;
 	private PedigreeFull pedigreeFull;
+	private PedigreeNode pedigreeNode;
 	
 	private View progressView;
-	private TextView testText;
+	private FrameLayout pedigreeFrameLayout;
+	private PedigreeView pedigreeView;
 	
 	private GetPedigreeTask getPedigreeTask;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		this.initPedigree();
-		this.setTitle(this.pedigree.getTitle());
+		this.initPedigreeFromIntent();
+		this.setTitle(this.pedigreeFromIntent.getTitle());
 		setContentView(R.layout.activity_pedigree);
 		this.progressView = findViewById(R.id.progress_pedigree);
-		this.testText = (TextView)findViewById(R.id.test_text);
+		this.pedigreeFrameLayout = (FrameLayout)findViewById(R.id.pedigree_tree);
+		// Initializes the PedigreeView
+		this.pedigreeView = new PedigreeView(this, null);
+		this.pedigreeView.setAnonymousDisplayName(getResources().getString(R.string.anonymous_display_name));
+		this.pedigreeView.setNoPeopleMessage(getResources().getString(R.string.no_people_message));
+		this.pedigreeFrameLayout.addView(this.pedigreeView);
 	}
 	
 	@Override
@@ -44,11 +53,11 @@ public class PedigreeActivity extends BaseActivity {
         this.attemptGetPedigree(false);
     }
 	
-	private void initPedigree() {
+	private void initPedigreeFromIntent() {
 		int id = getIntent().getExtras().getInt(EXTRA_PEDIGREE_ID);
 		String title = getIntent().getExtras().getString(EXTRA_PEDIGREE_TITLE);
 		int ownerId = getIntent().getExtras().getInt(EXTRA_PEDIGREE_OWNERID);
-		this.pedigree = new Pedigree(id, title, ownerId);
+		this.pedigreeFromIntent = new Pedigree(id, title, ownerId);
 	}
 
 	@Override
@@ -59,9 +68,9 @@ public class PedigreeActivity extends BaseActivity {
 	}
 
 	private void refreshTree() {
-		for(int i = 0; i < this.pedigreeFull.getPeople().length; i++) {
-			this.testText.append(this.pedigreeFull.getPeople()[i].getDisplayName() + ", ");
-		}
+		this.pedigreeNode = new PedigreeNode(this.pedigreeFull);
+		PersonNode person = this.pedigreeNode.getPerson(4); // 4 - magic value
+		this.pedigreeView.setPersonNode(person);
 	}
 	
 	private void attemptGetPedigree(boolean obligatoryServerUpdate) {
@@ -70,8 +79,8 @@ public class PedigreeActivity extends BaseActivity {
 		}
     	
     	if(this.app.getLoginManager().hasLoggedUser()) {
-        	PedigreeActivity.this.toggleView(true, progressView, testText);
-        	this.getPedigreeTask = new GetPedigreeTask(this.pedigree.getId(), obligatoryServerUpdate);
+        	PedigreeActivity.this.toggleView(true, progressView, pedigreeFrameLayout);
+        	this.getPedigreeTask = new GetPedigreeTask(this.pedigreeFromIntent.getId(), obligatoryServerUpdate);
         	this.getPedigreeTask.execute(this.app.getLoginManager().getLoggedUser());
         }
 	}
@@ -116,13 +125,13 @@ public class PedigreeActivity extends BaseActivity {
 				dialog.show();
 			}
 			
-			PedigreeActivity.this.toggleView(false, progressView, testText);
+			PedigreeActivity.this.toggleView(false, progressView, pedigreeFrameLayout);
 		}
 
 		@Override
 		protected void onCancelled() {
 			getPedigreeTask = null;
-			PedigreeActivity.this.toggleView(false, progressView, testText);
+			PedigreeActivity.this.toggleView(false, progressView, pedigreeFrameLayout);
 		}
 	}
 }

@@ -1,0 +1,123 @@
+package com.buhov.family;
+
+import java.util.ArrayList;
+
+import com.buhov.family.FamilyHttpClient.Entities.PedigreeFull;
+import com.buhov.family.FamilyHttpClient.Entities.Person;
+
+import android.util.SparseArray;
+import android.util.SparseBooleanArray;
+
+public class Pedigree {
+	
+	private int id;
+	private String title;
+	private int ownerId;
+	
+	private SparseArray<PersonNode> people;
+	private SparseArray<ArrayList<Integer>> childrenOf = new SparseArray<ArrayList<Integer>>();
+	
+	public Pedigree(PedigreeFull pedigree) {
+		if(pedigree == null || pedigree.getPeople() == null) {
+			throw new RuntimeException("Invalid pedigree.");
+		}
+		
+		this.id = pedigree.getId();
+		this.title = pedigree.getTitle();
+		this.ownerId = pedigree.getOwnerId();
+		this.addPeople(pedigree);
+		
+	}
+	
+	private void addPeople(PedigreeFull pedigree) {
+		
+		for(int i = 0; i < pedigree.getPeople().length; i++) {			
+			Person person = pedigree.getPeople()[i];
+			PersonNode personNode = new PersonNode(person);
+			this.people.put(person.getId(), personNode);
+			int firstParentIndex = person.getFirstParentId();
+			int secondParentIndex = person.getSecondParentId();
+			// Add the relationship parent -> children (for the first parent) to the SparseArray
+			if(firstParentIndex != 0) {
+				if(this.childrenOf.get(firstParentIndex) == null) {
+					this.childrenOf.setValueAt(firstParentIndex, new ArrayList<Person>());
+				}
+				children.get(firstParentIndex).add(person);
+			}
+			// Add the relationship parent -> children (for the second parent) to the SparseArray
+			if(secondParentIndex != 0) {
+				if(children.get(secondParentIndex) == null) {
+					children.setValueAt(secondParentIndex, new ArrayList<Person>());
+				}
+				children.get(secondParentIndex).add(person);
+			}
+		}
+		
+		SparseBooleanArray alreadyAdded = new SparseBooleanArray();
+		for(int i = 0; i < pedigree.getPeople().length; i++) {
+			this.addPerson(pedigree.getPeople()[i], children, alreadyAdded);
+		}
+	}
+	
+	private void addChildRelationship(int parentId, int childId) {
+		if(this.childrenOf.get(parentId) == null) {
+			this.childrenOf.setValueAt(parentId, new ArrayList<Integer>());
+		}
+		this.childrenOf.get(parentId).add(childId);
+	}
+
+	private void addPerson(Person person, SparseArray<ArrayList<Person>> children, SparseBooleanArray alreadyAdded) {
+		if(alreadyAdded.get(person.getId())) {
+			return;
+		}
+		
+		// Add all children
+		ArrayList<Person> personChildren = children.get(person.getId());
+		if(personChildren != null) {
+			for(Person child : personChildren) {
+				this.addPerson(child, children, alreadyAdded);
+			}
+		}
+		
+		alreadyAdded.put(person.getId(), true);
+		PersonNode personNode = new PersonNode(person);
+		if(person.getSpouseId() != 0) {
+		}
+		
+	}
+
+	public int getId() {
+		return this.id;
+	}
+	
+	public String getTitle() {
+		return this.title;
+	}
+	
+	public int getOwnerId() {
+		return this.ownerId;
+	}
+	
+	public class PersonNode {
+		
+		private Person data;
+		private ArrayList<PersonNode> children;
+		private ArrayList<PersonNode> parents;
+		private PersonNode spouse;
+		
+		private PersonNode(Person data) {
+			if(data == null) {
+				throw new RuntimeException("The person must not be null.");
+			}
+			this.data = data;
+			this.children = new ArrayList<PersonNode>();
+			this.parents = new ArrayList<PersonNode>();
+			this.spouse = null;
+		}
+		
+		public Person getData() {
+			return this.data;
+		}
+	
+	}
+}

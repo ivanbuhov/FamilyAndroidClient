@@ -16,10 +16,12 @@
             android:focusable="true"
             style="?android:attr/progressBarStyleHorizontal"
             android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/test_text"
+    
+    <FrameLayout
+        android:id="@+id/pedigree_tree"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="match_parent"
+        />
+
     
 </FrameLayout>

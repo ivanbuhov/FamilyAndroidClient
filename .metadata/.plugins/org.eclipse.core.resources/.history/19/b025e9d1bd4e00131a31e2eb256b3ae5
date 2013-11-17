@@ -1,0 +1,142 @@
+package com.buhov.family;
+
+import java.util.ArrayList;
+
+import com.buhov.family.FamilyHttpClient.Entities.PedigreeFull;
+import com.buhov.family.FamilyHttpClient.Entities.Person;
+
+import android.util.SparseArray;
+
+public class Pedigree {
+	
+	private int id;
+	private String title;
+	private int ownerId;
+	
+	private SparseArray<PersonNode> people;
+	private SparseArray<ArrayList<Integer>> childrenOf;
+	
+	public Pedigree(PedigreeFull pedigree) {
+		if(pedigree == null) {
+			throw new RuntimeException("Invalid pedigree.");
+		}
+		
+		this.id = pedigree.getId();
+		this.title = pedigree.getTitle();
+		this.ownerId = pedigree.getOwnerId();
+		
+		this.people = new SparseArray<PersonNode>();
+		this.childrenOf = new SparseArray<ArrayList<Integer>>();
+		if(pedigree.getPeople() != null) {
+			this.addPeople(pedigree);
+		}
+		
+	}
+	
+	private void addPeople(PedigreeFull pedigree) {
+		
+		for(int i = 0; i < pedigree.getPeople().length; i++) {			
+			Person person = pedigree.getPeople()[i];
+			this.people.put(person.getId(), new PersonNode(person));
+
+			if(person.getFirstParentId() != 0) {
+				this.addChildRelationship(person.getFirstParentId(), person.getId());
+			}
+			if(person.getSecondParentId() != 0) {
+				this.addChildRelationship(person.getSecondParentId(), person.getId());
+			}
+		}
+	}
+	
+	private void addChildRelationship(int parentId, int childId) {
+		if(this.childrenOf.get(parentId) == null) {
+			this.childrenOf.setValueAt(parentId, new ArrayList<Integer>());
+		}
+		this.childrenOf.get(parentId).add(childId);
+	}
+
+	public int getId() {
+		return this.id;
+	}
+	
+	public String getTitle() {
+		return this.title;
+	}
+	
+	public int getOwnerId() {
+		return this.ownerId;
+	}
+	
+	public int getCount() {
+		return this.people.size();
+	}
+	
+	private PersonNode getPerson(int id) {
+		if(id != 0) {
+			return PedigreeNode.this.people.get(id);
+		}
+		return null;
+	}
+	
+	public class PersonNode {
+		
+		private Person data;
+	
+		private PersonNode(Person data) {
+			if(data == null) {
+				throw new RuntimeException("The person must not be null.");
+			}
+			this.data = data;
+		}
+	
+		public Person getData() {
+			return this.data;
+		}
+	
+		public boolean hasSpouse() {
+			return (this.data.getSpouseId() != 0);
+		}
+		
+		public boolean hasFirstParent() {
+			return (this.data.getFirstParentId() != 0);
+		}
+		
+		public boolean hasSecondParent() {
+			return (this.data.getSecondParentId() != 0);
+		}
+		
+		public int getChildrenCount() {
+			ArrayList<Integer> childrenIndices = PedigreeNode.this.childrenOf.get(this.data.getId());
+			int count = (childrenIndices == null) ? 0 : childrenIndices.size();
+			return count;
+		}
+		
+		public PersonNode getSpouse() {
+			int spouseId = this.data.getSpouseId();
+			return PedigreeNode.this.getPerson(spouseId);
+		}
+		
+		public PersonNode getFirstParent() {
+			int firstParentId = this.data.getFirstParentId();
+			return PedigreeNode.this.getPerson(firstParentId);
+		}
+		
+		public PersonNode getSecondParent() {
+			int secondParentId = this.data.getSecondParentId();
+			return PedigreeNode.this.getPerson(secondParentId);
+		}
+		
+		public ArrayList<PersonNode> getChildren() {
+			ArrayList<Integer> childrenIndices = PedigreeNode.this.childrenOf.get(this.data.getId());
+			int length = (childrenIndices == null) ? 0 : childrenIndices.size();
+			ArrayList<PersonNode> children = new ArrayList<PersonNode>(length);
+			if(childrenIndices != null) {
+				for(Integer index : childrenIndices) {
+					children.add(PedigreeNode.this.people.get(index));
+				}
+			}
+			
+			return children;
+		}
+	}
+}

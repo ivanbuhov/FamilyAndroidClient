@@ -57,12 +57,12 @@ public final class R {
         public static final int menu_item_refresh_pedigree=0x7f0b0012;
         public static final int menu_item_settings=0x7f0b0010;
         public static final int password=0x7f0b0004;
+        public static final int pedigree_tree=0x7f0b000c;
         public static final int progress_my_pedigrees=0x7f0b0008;
         public static final int progress_pedigree=0x7f0b000b;
         public static final int register_button=0x7f0b0006;
         public static final int status=0x7f0b0000;
         public static final int status_message=0x7f0b0001;
-        public static final int test_text=0x7f0b000c;
         public static final int username=0x7f0b0003;
     }
     public static final class layout {
@@ -93,6 +93,7 @@ public final class R {
          */
         public static final int alert_title_registration_failed=0x7f070015;
         public static final int alert_title_update_failed=0x7f070019;
+        public static final int anonymous_display_name=0x7f070030;
         /**  Titles and names 
          */
         public static final int app_name=0x7f070006;
@@ -118,6 +119,7 @@ public final class R {
          */
         public static final int menu_item_settings=0x7f07000a;
         public static final int no=0x7f070001;
+        public static final int no_people_message=0x7f070031;
         /**  Preferences 
  Preferences Header 
          */

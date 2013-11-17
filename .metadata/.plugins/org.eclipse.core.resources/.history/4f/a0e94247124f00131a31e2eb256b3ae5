@@ -1,0 +1,146 @@
+package com.buhov.family;
+
+import com.buhov.family.PedigreeNode.PersonNode;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Paint.Align;
+import android.graphics.Paint.Style;
+import android.graphics.Point;
+import android.graphics.PointF;
+import android.util.AttributeSet;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+public class PedigreeView extends ZoomablePannableView {
+
+	private PointF center;
+	
+	private float rectangleWidth = 200;
+	private float rectangleHeight = 100;
+	
+	private Paint malePaint;
+	private Paint femalePaint;
+	private Paint anonymousPaint;
+	private Paint linePaint;
+	private Paint textPaint;
+	
+	private PersonNode personNode;
+	private String anonymousDisplayName;
+	private String noPeopleMessage;
+	
+	public PedigreeView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		
+		this.linePaint = new Paint();
+		this.linePaint.setColor(Color.BLACK);
+		this.linePaint.setStrokeWidth(3);
+		
+		this.malePaint = new Paint();
+		this.malePaint.setColor(Color.BLUE);
+		this.malePaint.setStrokeWidth(3);
+		this.malePaint.setAlpha(200);
+		
+		this.anonymousPaint = new Paint();
+		this.anonymousPaint.setColor(Color.GRAY);
+		this.anonymousPaint.setStrokeWidth(3);
+		this.anonymousPaint.setAlpha(200);
+		
+		this.femalePaint = new Paint();
+		this.femalePaint.setColor(Color.MAGENTA);
+		this.femalePaint.setStrokeWidth(3);
+		this.femalePaint.setAlpha(200);
+		
+		this.textPaint = new Paint();
+		this.textPaint.setColor(Color.BLACK);
+		this.textPaint.setTextAlign(Align.CENTER);
+		this.textPaint.setTextSize(20);
+		this.textPaint.setStyle(Style.FILL);
+		
+		this.center = new PointF(0f, 0f);
+		this.anonymousDisplayName = "Anonymous";
+		this.noPeopleMessage = "There is no people in the tree.";
+	}
+	
+	@Override
+	protected void onDraw(Canvas canvas) {
+		super.onDraw(canvas);
+		if(this.personNode == null) {
+			canvas.drawText(this.noPeopleMessage, this.center.x, this.center.y, this.textPaint);
+		}
+		else {
+			this.drawTree(canvas, this.personNode);
+		}
+		//textView.measure(MeasureSpec.makeMeasureSpec(200, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(200, MeasureSpec.EXACTLY));
+	    //textView.layout(0, 0, 0 + 200, 0 + 200);
+	    //textView.setGravity(Gravity.CENTER);
+		canvas.restore();
+	}
+	
+	private void drawTree(Canvas canvas, PersonNode person) {
+		this.drawPersonOrAnonymous(canvas, this.personNode, this.center);
+		this.drawSpouseOrAnonymous(canvas, person, this.center);
+	}
+	
+	private boolean drawSpouseOrAnonymous(Canvas canvas, PersonNode person, PointF personCenter) {
+		canvas.drawLine(personCenter.x + (this.rectangleWidth / 2), personCenter.y, 
+				personCenter.x + this.rectangleWidth, personCenter.y, this.linePaint);
+		PointF spouseCenter = new PointF(personCenter.x + this.rectangleWidth * 1.5f, personCenter.y);
+		return this.drawPersonOrAnonymous(canvas, person.getSpouse(), spouseCenter);
+	}
+	
+	private boolean drawParentsIfHasAny(Canvas canvas, PersonNode person, PointF personCenter) {
+		// Arengae the parents  in the right order
+		PersonNode[] parents = new PersonNode[2];
+		parents[0] = person.getFirstParent();
+		if(parents[0] != null && !parents[0].getData().isMale()) {
+			parents[1] = parents[0];
+			parents[0] = person.getSecondParent();
+		}
+		else {
+			parents[1] = person.getSecondParent();
+			if(parents[1] != null && parents[1].getData().isMale()) {
+				PersonNode temp = parents[1];
+				parents[1] = parents[0];
+				parents[0] = temp;
+			}
+		}
+		PersonNode secondParent = person.getSecondParent();
+		canvas.drawLine(personCenter.x + (this.rectangleWidth / 2), personCenter.y, 
+				personCenter.x + this.rectangleWidth, personCenter.y, this.linePaint);
+		PointF spouseCenter = new PointF(personCenter.x + this.rectangleWidth * 1.5f, personCenter.y);
+		return this.drawPersonOrAnonymous(canvas, person.getSpouse(), spouseCenter);
+	}
+	
+	private boolean drawPersonOrAnonymous(Canvas canvas, PersonNode person, PointF centralPoint) {
+		boolean isAnonymous = true;
+		Paint paint = this.anonymousPaint;
+		String displayName = this.anonymousDisplayName;
+		if(person != null) {
+			paint = person.getData().isMale() ? this.malePaint : this.femalePaint;
+			displayName = person.getData().getDisplayName();
+			isAnonymous = false;
+		}
+		float xCoord = centralPoint.x - (this.rectangleWidth/2);
+		float yCoord = centralPoint.y - (this.rectangleHeight/2);
+		canvas.drawRect(xCoord, yCoord, xCoord + this.rectangleWidth, yCoord + this.rectangleHeight, paint);
+		canvas.drawText(displayName, centralPoint.x, centralPoint.y, this.textPaint);
+		return isAnonymous;
+	}
+	
+	public PersonNode getPedigreeNode() {
+		return this.personNode;
+	}
+
+	public void setPersonNode(PersonNode personNode) {
+		this.personNode = personNode;
+		this.invalidate();
+	}
+}
