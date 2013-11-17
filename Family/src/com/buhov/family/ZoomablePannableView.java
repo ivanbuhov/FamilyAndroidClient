@@ -115,6 +115,12 @@ public class ZoomablePannableView extends View {
 		return true;
 	}
 	
+	public void resetScaleAndTransformation() {
+		this.scaleFactor = 1f;
+		this.translateX = 0;
+		this.translateY = 0;
+	}
+	
 	private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 		@Override
 		public boolean onScale(ScaleGestureDetector scaleDetector) {

@@ -70,5 +70,6 @@
     <string name="action_settings">Settings</string>
     <string name="anonymous_display_name">Unknown</string>
     <string name="no_people_message">No person selected</string>
+    <string name="people_list">People list</string>
 
 </resources>

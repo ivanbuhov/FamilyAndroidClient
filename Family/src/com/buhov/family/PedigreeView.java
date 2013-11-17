@@ -28,6 +28,7 @@ public class PedigreeView extends ZoomablePannableView {
 	private Paint textPaint;
 	private Paint blackLinePaint;
 	
+	private int personId;
 	private PersonNode personNode;
 	private String anonymousDisplayName;
 	private String noPeopleMessage;
@@ -75,9 +76,6 @@ public class PedigreeView extends ZoomablePannableView {
 		else {
 			this.drawTree(canvas, this.personNode);
 		}
-		//textView.measure(MeasureSpec.makeMeasureSpec(200, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(200, MeasureSpec.EXACTLY));
-	    //textView.layout(0, 0, 0 + 200, 0 + 200);
-	    //textView.setGravity(Gravity.CENTER);
 		canvas.restore();
 	}
 	
@@ -261,8 +259,21 @@ public class PedigreeView extends ZoomablePannableView {
 	}
 
 	public void setPersonNode(PersonNode personNode) {
+		this.personId = 0;
+		if(personNode != null) {
+			this.personId = personNode.getData().getId();
+		}
 		this.personNode = personNode;
+		this.resetScaleAndTransformation();
 		this.invalidate();
+	}
+	
+	public boolean hasPersonNode() {
+		return (this.personNode != null);
+	}
+	
+	public int getPersonId() {
+		return this.personId;
 	}
 
 	public String getAnonymousDisplayName() {

@@ -70,7 +70,7 @@ public class MyPedigreesActivity extends BaseActivity implements PedigreeEditHan
 			case R.id.menu_item_add_pedigree:
 				this.showAddPedigreeDialog();
 			break;
-			case R.id.menu_item_refresh_pedigree:
+			case R.id.menu_item_refresh:
 				this.attemptGetMyPedigrees(true);
 			break;
 			default:
@@ -137,8 +137,8 @@ public class MyPedigreesActivity extends BaseActivity implements PedigreeEditHan
     }
     
 	private void refreshList() {
-		pedigreesAdapter = new ArrayAdapter<Pedigree>(MyPedigreesActivity.this, 
-				android.R.layout.simple_list_item_1, android.R.id.text1, this.pedigrees);
+		pedigreesAdapter = new ArrayAdapter<Pedigree>(this,android.R.layout.simple_list_item_1, 
+				android.R.id.text1, this.pedigrees);
 		contentListView.setAdapter(pedigreesAdapter);
 	}
 	

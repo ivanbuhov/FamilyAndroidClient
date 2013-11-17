@@ -8,7 +8,7 @@
         android:title="@string/menu_item_add_pedigree"/>
     
     <item
-        android:id="@+id/menu_item_refresh_pedigree"
+        android:id="@+id/menu_item_refresh"
         android:orderInCategory="98"
         android:showAsAction="ifRoom"
         android:icon="@drawable/ic_refresh"

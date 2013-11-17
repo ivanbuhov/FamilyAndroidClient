@@ -118,4 +118,9 @@ public class Person {
 		this.spouseId = spouseId;
 	}
 	
+	@Override
+	public String toString() {
+		return this.displayName.toString();
+	}
+	
 }
