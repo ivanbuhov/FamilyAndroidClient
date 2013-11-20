@@ -70,6 +70,12 @@ public class BaseActivity extends Activity {
 		return dialog;
 	}
 	
+	public void logOut() {
+		Intent logoutIntent = new Intent(this, LoginActivity.class);
+		logoutIntent.putExtra(LoginActivity.EXTRA_LOGOUT_KEY, true);
+		startActivity(logoutIntent);
+	}
+	
 	// Shows and hides views in the activity.
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
 	public void toggleView(final boolean show, final View viewToToggle, final View alternativeView) {

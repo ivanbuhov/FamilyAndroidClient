@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Formatter;
 
+import com.buhov.family.FamilyHttpClient.Entities.Date;
 import com.buhov.family.FamilyHttpClient.Entities.User;
 import com.buhov.family.FamilyHttpClient.Entities.UserDTO;
 
@@ -103,4 +104,24 @@ public class Utils {
 	    return result;
 	}
 
+	public static Date parseDate(String dateString) {
+		if(dateString == null || dateString == "") {
+			return null;
+		}
+		String[] parts = dateString.split("-");
+		int year = Integer.parseInt(parts[0]);
+		int month = Integer.parseInt(parts[1]);
+		String[] dayAndTime = parts[2].split("T");
+		int day = Integer.parseInt(dayAndTime[0]);
+		return new Date(year, month, day);
+	}
+	
+	public static String getDateString(Date date) {
+		if(date == null) {
+			return "";
+		}
+		else {
+			return date.getYear() + "-" + date.getMonth() + "-" + date.getDay() + "T00:00:00";
+		}
+	}
 }

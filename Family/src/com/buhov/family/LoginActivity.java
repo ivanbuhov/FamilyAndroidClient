@@ -9,16 +9,21 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 public class LoginActivity extends BaseActivity {
+	
+	public static final String EXTRA_LOGOUT_KEY = "EXTRA_LOGOUT_KEY";
+	private boolean logout;
 	
 	private UserRegistrationTask registrationTask = null;
 	private UserLoginTask loginTask = null;
@@ -30,6 +35,8 @@ public class LoginActivity extends BaseActivity {
 	// UI references
 	private EditText usernameView;
 	private EditText passwordView;
+	private Button loginButton;
+	private Button registerButton;
 	private View inputFormView;
 	private View statusView;
 
@@ -43,12 +50,27 @@ public class LoginActivity extends BaseActivity {
 		this.usernameView = (EditText) findViewById(R.id.username);
 		this.passwordView = (EditText) findViewById(R.id.password);
 		this.passwordView.setOnEditorActionListener(new onPasswordEditorActionListener());
+		this.loginButton = (Button) findViewById(R.id.login_button);
+		this.registerButton = (Button) findViewById(R.id.register_button);
 
 		this.inputFormView = findViewById(R.id.input_form);
 		this.statusView = findViewById(R.id.status);
 
-		findViewById(R.id.register_button).setOnClickListener(new onRegisterButtonClickedListener());
-		findViewById(R.id.login_button).setOnClickListener(new onLoginButtonClickedListener());
+		this.registerButton.setOnClickListener(new onRegisterButtonClickedListener());
+		this.loginButton.setOnClickListener(new onLoginButtonClickedListener());
+		
+		this.logout = getIntent().getBooleanExtra(EXTRA_LOGOUT_KEY, false);
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if(this.logout) {
+			this.app.getLoginManager().logOut();
+		}
+		else {
+			this.tryLoginAutomatically();
+		}
 	}
 
 	@Override
@@ -56,6 +78,22 @@ public class LoginActivity extends BaseActivity {
 		super.onCreateOptionsMenu(menu);
 		getMenuInflater().inflate(R.menu.login, menu);
 		return true;
+	}
+	
+	public void tryLoginAutomatically() {
+		String prefKey = app.getResources().getString(R.string.pref_key_enable_automatically_login);
+		Boolean autoLoginEnabled = PreferenceManager.getDefaultSharedPreferences(this.app).getBoolean(prefKey, false);
+		if(autoLoginEnabled) {
+			String usernameKey = app.getResources().getString(R.string.pref_key_remembered_username);
+			String passwordKey = app.getResources().getString(R.string.pref_key_remembered_password);
+			String username = PreferenceManager.getDefaultSharedPreferences(this.app).getString(usernameKey, null);
+			String password = PreferenceManager.getDefaultSharedPreferences(this.app).getString(passwordKey, null);
+			if(username != null && password != null) {
+				this.usernameView.setText(username);
+				this.passwordView.setText(password);
+				this.loginButton.performClick();
+			}
+		}
 	}
 
 	public void attemptRegister() {

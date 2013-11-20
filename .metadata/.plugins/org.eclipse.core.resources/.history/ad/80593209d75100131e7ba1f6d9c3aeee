@@ -1,0 +1,12 @@
+package com.buhov.family;
+
+import android.content.Context;
+import android.widget.ArrayAdapter;
+
+public class PersonGridAdapter extends ArrayAdapter {
+
+	public PersonGridAdapter(Context context) {
+		super(context);
+	}
+
+}

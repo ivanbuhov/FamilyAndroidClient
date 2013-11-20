@@ -1,0 +1,97 @@
+package com.buhov.family;
+
+import com.buhov.family.FamilyData.*;
+import com.buhov.family.FamilyDb.*;
+import com.buhov.family.FamilyHttpClient.*;
+import com.buhov.family.FamilyHttpClient.Entities.PedigreeFull;
+import com.buhov.family.FamilyHttpClient.Entities.User;
+
+import android.app.Application;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
+public class FamilyApplication extends Application {
+	
+	private FamilyData familyData;
+	private LoginManager loginManager;
+	
+	private PedigreeFull currentPedigree;
+	private PedigreeNode currentPedigreeNode;
+	
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		this.loginManager = new LoginManager();
+	}
+	
+	public FamilyData getFamilyData() {
+		if(this.familyData == null) {
+			this.familyData = new FamilyData(this, 
+					new FamilyDb(new FamilyDbHelper(this)),
+					new FamilyHttpClient(this));
+		}
+		return this.familyData;
+	}
+	
+	public LoginManager getLoginManager() {
+		return this.loginManager;
+	}
+	
+	public int getApiVersion() {
+		return android.os.Build.VERSION.SDK_INT;
+	}
+	
+	public PedigreeFull getCurrentPedigree() {
+		return this.currentPedigree;
+	}
+	
+	public void setCurrentPedigree(PedigreeFull pedigree) {
+		this.currentPedigree = pedigree;
+	}
+	
+	public boolean hasCurrentPedigree() {
+		return (this.currentPedigree != null);
+	}
+	
+	public PedigreeNode getCurrentPedigreeNode() {
+		return this.currentPedigreeNode;
+	}
+	
+	public void setCurrentPedigreeNode() {
+		return this.currentPedigreeNode;
+	}
+	
+	public boolean isNetworkConnected() {
+		ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+		return (networkInfo != null && networkInfo.isConnectedOrConnecting());
+	}
+
+	public class LoginManager {
+		
+		private User loggedUser;
+		
+		public LoginManager() {
+			this.logOut();
+		}
+		
+		public Boolean hasLoggedUser() {
+			return (this.loggedUser != null);
+		}
+		
+		public User getLoggedUser() {
+			return this.loggedUser;
+		}
+		
+		public void loginWith(User user) {
+			this.loggedUser = new User(user.getUsername(), user.getAuthCode());
+			this.loggedUser.setId(user.getId());
+		}
+		
+		public void logOut() {
+			this.loggedUser = null;
+		}
+	}
+	
+}

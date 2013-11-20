@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <TextPreference
+            android:key="@string/pref_key_remembered_username"
+            android:summary="@string/pref_summary_remembered_username"
+            android:title="@string/pref_title_remembered_username"
+            android:icon="@drawable/ic_pref_username"  />
+    
+    <TextPreference
+            android:key="@string/pref_key_remembered_password"
+            android:summary="@string/pref_summary_remembered_password"
+            android:title="@string/pref_title_remembered_password"
+            android:icon="@drawable/ic_pref_password"  />
+    
+</PreferenceScreen>

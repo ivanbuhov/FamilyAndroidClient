@@ -40,7 +40,7 @@ public class FamilyDb {
 		}
 	}
 
-	public void update(int pedigreeId, PedigreeFull pedigree) {
+	public void update(PedigreeFull pedigree) {
 		SQLiteDatabase db = null;
 		try {
 			db = this.helper.getWritableDatabase();
@@ -53,7 +53,7 @@ public class FamilyDb {
 			db.insertWithOnConflict(FamilyDbHelper.TABLE_NAME_PEDIGREES, null, pedigreeValues, SQLiteDatabase.CONFLICT_REPLACE);
 			
 			// Delete all people from the current pedigree
-			db.delete(FamilyDbHelper.TABLE_NAME_PEOPLE, FamilyDbHelper.C_PEOPLE_PEDIGREEID + "=" + pedigreeId, null);
+			db.delete(FamilyDbHelper.TABLE_NAME_PEOPLE, FamilyDbHelper.C_PEOPLE_PEDIGREEID + "=" + pedigree.getId(), null);
 			// Loop over the people and save them to the database
 			ContentValues values = new ContentValues();
 			for (Person person : pedigree.getPeople()) {

@@ -9,16 +9,21 @@ import com.buhov.family.FamilyHttpClient.Entities.Person;
 import com.buhov.family.FamilyHttpClient.Entities.User;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.DialogInterface.OnClickListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.ActionMode;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
-import android.widget.ListView;
+import android.widget.GridView;
+import android.widget.PopupMenu;
+import android.widget.PopupMenu.OnMenuItemClickListener;
 import android.widget.Toast;
 
 public class PedigreeActivity extends BaseActivity {
@@ -40,17 +45,18 @@ public class PedigreeActivity extends BaseActivity {
 	private ActionMode cabMode = null;
 	private int selectedPosition = -1;
 	
+	private AlertDialog deletionAlert;
+	
 	private Pedigree pedigreeFromIntent;
-	private PedigreeFull pedigreeFull;
-	private PedigreeNode pedigreeNode;
 	
 	private View progressView;
-	private ListView peopleListView;
-	private ArrayAdapter<Person> peopleAdapter;
+	private GridView peopleGridView;
+	private PersonGridAdapter peopleAdapter;
 	private FrameLayout pedigreeFrameLayout;
 	private PedigreeView pedigreeView;
 	
 	private GetPedigreeTask getPedigreeTask;
+	private DeletePersonTask deletePersonTask;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +67,7 @@ public class PedigreeActivity extends BaseActivity {
 		// Initiaizes views
 		setContentView(R.layout.activity_pedigree);
 		this.progressView = findViewById(R.id.progress_pedigree);
-		this.peopleListView = (ListView) findViewById(R.id.people_list);
+		this.peopleGridView = (GridView) findViewById(R.id.people_grid);
 		this.pedigreeFrameLayout = (FrameLayout)findViewById(R.id.pedigree_tree);
 		// Initializes the PedigreeView
 		this.pedigreeView = new PedigreeView(this, null);
@@ -77,8 +83,8 @@ public class PedigreeActivity extends BaseActivity {
 			}
 	    }
 		// Register touch events
-		this.peopleListView.setOnItemClickListener(new PersonItemClickListener());
-		this.peopleListView.setOnItemLongClickListener(new PersonItemLongClickListener());
+		this.peopleGridView.setOnItemClickListener(new PersonItemClickListener());
+		this.peopleGridView.setOnItemLongClickListener(new PersonItemLongClickListener());
 	}
 	
 	@Override
@@ -129,6 +135,16 @@ public class PedigreeActivity extends BaseActivity {
     }
 
 	@Override
+	public void onBackPressed() {
+		if(this.treeMode) {
+			this.endTreeMode();
+		}
+		else {
+			super.onBackPressed();
+		}
+	}
+	
+	@Override
 	protected void onSaveInstanceState (Bundle outState) {
 	    super.onSaveInstanceState(outState);
 	    if(this.treeMode) {
@@ -138,8 +154,7 @@ public class PedigreeActivity extends BaseActivity {
 	}
 	
 	private void refreshActivity() {
-		this.pedigreeNode = new PedigreeNode(this.pedigreeFull);
-		this.setTitle(pedigreeFull.getTitle());
+		this.setTitle(this.app.getCurrentPedigreeNode().getTitle());
 		this.refreshList();
 		if(this.treeMode) {
 			this.refreshTree();
@@ -147,14 +162,13 @@ public class PedigreeActivity extends BaseActivity {
 	}
 	
 	private void refreshList() {
-		this.peopleAdapter = new ArrayAdapter<Person>(this, android.R.layout.simple_list_item_1, 
-				android.R.id.text1, this.pedigreeFull.getPeople());
-		this.peopleListView.setAdapter(this.peopleAdapter);
+		this.peopleAdapter = new PersonGridAdapter(this, this.app.getCurrentPedigree().getPeople());
+		this.peopleGridView.setAdapter(this.peopleAdapter);
 	}
 	
 	private void refreshTree() {
 		int currentViewId = (this.pedigreeView.hasPersonNode()) ? this.pedigreeView.getPersonId() : this.previousPersonIndex;
-		PersonNode person = this.pedigreeNode.getPerson(currentViewId);
+		PersonNode person = this.app.getCurrentPedigreeNode().getPerson(currentViewId);
 		this.pedigreeView.setPersonNode(person);
 	}
 	
@@ -164,15 +178,23 @@ public class PedigreeActivity extends BaseActivity {
 	}
 	
 	private void startTreeMode() {
-		this.toggleView(true, this.pedigreeFrameLayout, this.peopleListView);
+		this.toggleView(true, this.pedigreeFrameLayout, this.peopleGridView);
 		this.treeMode = true;
 		this.adjustOptionsMenu();
 	}
 	
 	private void endTreeMode() {
-		this.toggleView(true, this.peopleListView, this.pedigreeFrameLayout);
+		this.toggleView(true, this.peopleGridView, this.pedigreeFrameLayout);
 		this.treeMode = false;
 		this.adjustOptionsMenu();
+	}
+	
+	private void showAddPersonPopupMenu() {
+		PopupMenu popup = new PopupMenu(this, (View)findViewById(R.id.context_menu_add_person));
+	    popup.setOnMenuItemClickListener(new AddPersonPopupMenuClickListener());
+	    MenuInflater inflater = popup.getMenuInflater();
+	    inflater.inflate(R.menu.add_person_popup, popup.getMenu());
+	    popup.show();
 	}
 	
 	private void attemptGetPedigree(boolean obligatoryServerUpdate) {
@@ -184,6 +206,18 @@ public class PedigreeActivity extends BaseActivity {
         	PedigreeActivity.this.toggleView(true, progressView, null);
         	this.getPedigreeTask = new GetPedigreeTask(this.pedigreeFromIntent.getId(), obligatoryServerUpdate);
         	this.getPedigreeTask.execute(this.app.getLoginManager().getLoggedUser());
+        }
+	}
+	
+	private void attemptDeletePerson(int personId) {
+		if (this.deletePersonTask != null) {
+			return;
+		}
+    	
+    	if(this.app.getLoginManager().hasLoggedUser()) {
+        	PedigreeActivity.this.toggleView(true, progressView, null);
+        	this.deletePersonTask = new DeletePersonTask(this.app.getLoginManager().getLoggedUser());
+        	this.deletePersonTask.execute(personId);
         }
 	}
 	
@@ -202,7 +236,8 @@ public class PedigreeActivity extends BaseActivity {
 		protected Boolean doInBackground(User... params) {
 			try {
 				FamilyData data = PedigreeActivity.this.app.getFamilyData();
-				PedigreeActivity.this.pedigreeFull = data.getPedigree(params[0], this.pedigreeId, this.obligatoryServerUpdate);
+				PedigreeFull pedigreeFull = data.getPedigree(params[0], this.pedigreeId, this.obligatoryServerUpdate);
+				PedigreeActivity.this.app.setCurrentPedigree(pedigreeFull);
 				return true;
 			}
 			catch(FamilyDataException e) {
@@ -235,6 +270,86 @@ public class PedigreeActivity extends BaseActivity {
 			PedigreeActivity.this.toggleView(false, progressView, null);
 		}
 	}
+	
+	private class DeletePersonTask extends AsyncTask<Integer, Void, Boolean> {
+
+    	private User user;
+    	private String error = null;
+    	
+    	public DeletePersonTask(User user) {
+    		if(user == null) {
+				throw new RuntimeException("No user specified.");
+			}
+    		this.user = user;
+    	}
+    	
+		@Override
+		protected Boolean doInBackground(Integer... params) {
+			try {
+				FamilyData data = PedigreeActivity.this.app.getFamilyData();
+				FamilyApplication app = PedigreeActivity.this.app;
+				app.setCurrentPedigree(data.deletePerson(this.user, params[0]));
+				return true;
+			}
+			catch(FamilyDataException e) {
+				this.error = e.getMessage();
+				return false;
+			}
+		}
+		
+		@Override
+		protected void onPostExecute(final Boolean success) {
+			deletePersonTask = null;
+
+			if (success) {
+				PedigreeActivity.this.refreshActivity();
+			} 
+			else {
+				String title = getResources().getString(R.string.alert_title_deletion_failed);
+				String message = this.error;
+				int icon = R.drawable.ic_error;
+				AlertDialog dialog = PedigreeActivity.this.getAlert(PedigreeActivity.this, message, title, icon);
+				dialog.show();
+			}
+			
+			PedigreeActivity.this.toggleView(false, progressView, null);
+		}
+
+		@Override
+		protected void onCancelled() {
+			deletePersonTask = null;
+			PedigreeActivity.this.toggleView(false, progressView, null);
+		}
+    }
+	
+	private AlertDialog getPedigreeDeletionAlert(String title) {
+    	
+    	if(this.deletionAlert == null) {
+    		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+    		dialogBuilder.setMessage(R.string.delete_message_person);
+    		dialogBuilder.setIcon(R.drawable.ic_remove);
+    		
+    		dialogBuilder.setNegativeButton(R.string.no, new OnClickListener() {
+    			@Override
+    			public void onClick(DialogInterface dialog, int which) {
+    				dialog.dismiss();
+    			}
+    		});
+    		
+    		dialogBuilder.setPositiveButton(R.string.yes, new OnClickListener() {
+    			@Override
+    			public void onClick(DialogInterface dialog, int which) {
+    				Person selectedPerson = (Person)peopleGridView.getItemAtPosition(selectedPosition);
+    				attemptDeletePerson(selectedPerson.getId());
+    			}
+    		});
+    		
+    		this.deletionAlert = dialogBuilder.create();
+    	}
+		
+    	this.deletionAlert.setTitle(title);
+		return this.deletionAlert;
+	}
 
 	private class PeopleListActionModeCallback implements ActionMode.Callback {
 
@@ -244,7 +359,7 @@ public class PedigreeActivity extends BaseActivity {
     	@Override
 		public boolean onCreateActionMode(ActionMode mode, Menu menu) {
     		this.selectedPosition = PedigreeActivity.this.selectedPosition;
-    		this.selectedPerson = (Person)peopleListView.getItemAtPosition(this.selectedPosition);
+    		this.selectedPerson = (Person)peopleGridView.getItemAtPosition(this.selectedPosition);
 			mode.setTitle(this.selectedPerson.getDisplayName());
 			mode.getMenuInflater().inflate(R.menu.pedigree_context_menu, menu);
 			return true;
@@ -252,7 +367,6 @@ public class PedigreeActivity extends BaseActivity {
     	
 		@Override
 		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-			Person selectedPerson = (Person)peopleListView.getItemAtPosition(this.selectedPosition);
 			
 			switch(item.getItemId()) {
 				case R.id.context_menu_view:
@@ -260,28 +374,26 @@ public class PedigreeActivity extends BaseActivity {
 					Toast.makeText(PedigreeActivity.this, "View", Toast.LENGTH_SHORT).show();
 					mode.finish();
 				break;
+				case R.id.context_menu_add_person:
+					showAddPersonPopupMenu();
+				break;
 				case R.id.context_menu_edit:
-					// PedigreeActivity.this.showEditPedigreeDialog(selectedPerson);
-					Toast.makeText(PedigreeActivity.this, "Edit", Toast.LENGTH_SHORT).show();
+					Intent intent = new Intent(PedigreeActivity.this, EditPersonActivity.class);
+					intent.putExtra(EditPersonActivity.EXTRA_PERSON_ID, this.selectedPerson.getId());
+					startActivity(intent);
 					mode.finish();
 				break;
 				case R.id.context_menu_delete:
-					// getPedigreeDeletionAlert(selectedPerson.getDisplayName()).show();
-					Toast.makeText(PedigreeActivity.this, "View", Toast.LENGTH_SHORT).show();
+					getPedigreeDeletionAlert(this.selectedPerson.getDisplayName()).show();
 					mode.finish();
 				break;
 			}
 			return true;
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		public void onDestroyActionMode(ActionMode mode) {
 			mode = null;
-			// Deselect the selected item
-			peopleListView.getChildAt(this.selectedPosition)
-			.setBackgroundDrawable(peopleListView.getBackground());
-			peopleListView.setItemChecked(this.selectedPosition, false);
 		}
 
 		@Override
@@ -298,8 +410,7 @@ public class PedigreeActivity extends BaseActivity {
 				cabMode.finish();
 			}
 			PedigreeActivity.this.selectedPosition = position;
-			PedigreeActivity.this.peopleListView.setItemChecked(position, true);
-			view.setBackgroundResource(R.color.holo_blue_bright);
+			PedigreeActivity.this.peopleGridView.setItemChecked(position, true);
 			cabMode = startActionMode(new PeopleListActionModeCallback());
 			return true;
 	    }
@@ -312,9 +423,36 @@ public class PedigreeActivity extends BaseActivity {
 			if(cabMode != null) {
 				cabMode.finish();
 			}
-			Person person = (Person)peopleListView.getItemAtPosition(position);
-			startTreeModeWith(pedigreeNode.getPerson(person.getId()));
+			Person person = (Person)peopleGridView.getItemAtPosition(position);
+			startTreeModeWith(PedigreeActivity.this.app.getCurrentPedigreeNode().getPerson(person.getId()));
 		}
     }
 
+	private class AddPersonPopupMenuClickListener implements OnMenuItemClickListener {
+
+		@Override
+		public boolean onMenuItemClick(MenuItem item) {
+			Person selectedPerson = (Person)peopleGridView.getItemAtPosition(selectedPosition);
+			Intent intent = new Intent(PedigreeActivity.this, EditPersonActivity.class);
+			intent.putExtra(EditPersonActivity.EXTRA_PERSON_ID, selectedPerson.getId());
+			
+			switch (item.getItemId()) {
+		        case R.id.menu_item_add_parent:
+		        	intent.putExtra(EditPersonActivity.ADD_MODE_KEY, EditPersonActivity.ADD_PARENT);
+		            break;
+		        case R.id.menu_item_add_spouse:
+		        	intent.putExtra(EditPersonActivity.ADD_MODE_KEY, EditPersonActivity.ADD_SPOUSE);
+		        	break;
+		        case R.id.menu_item_add_child:
+		        	intent.putExtra(EditPersonActivity.ADD_MODE_KEY, EditPersonActivity.ADD_CHILD);
+		        	break;
+		        default:
+		            return false;
+		    }
+			
+			startActivity(intent);
+			return true;
+		}
+		
+	}
 }

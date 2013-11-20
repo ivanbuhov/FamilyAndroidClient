@@ -13,16 +13,16 @@
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="" key="selection"/>
+		<item value="context" key="selection"/>
 		<list key="findhistory">
+			<item value="context"/>
+			<item value="setPers"/>
 			<item value="valueAt"/>
 			<item value="PedigreeNode"/>
 			<item value="onPedigreeEditionFinished"/>
 			<item value="startActivity"/>
 			<item value="MenuItem"/>
 			<item value="UserDTO"/>
-			<item value="occurs"/>
-			<item value="authTask"/>
 		</list>
 		<list key="replacehistory">
 			<item value="registrationTask"/>

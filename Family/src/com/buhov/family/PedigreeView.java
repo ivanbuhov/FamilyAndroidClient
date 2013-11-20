@@ -85,16 +85,18 @@ public class PedigreeView extends ZoomablePannableView {
 		if(person.getParentsCount() > 0) {
 			this.drawSiblings(canvas, person, this.center, true);
 		}
-		if(person.getChildrenCount() > 0) {
+		if(person.getChildrenCount() > 0 || person.hasSpouse()) {
 			this.drawSpouseOrAnonymous(canvas, person, this.center);
-			this.drawChildren(canvas, person, this.center);
+			if(person.getChildrenCount() > 0) {
+				this.drawChildren(canvas, person, this.center);
+			}
 		}
 	}
 	
 	private boolean drawSpouseOrAnonymous(Canvas canvas, PersonNode person, PointF personCenter) {
 		canvas.drawLine(personCenter.x + (this.rectangleWidth / 2), personCenter.y, 
 				personCenter.x + this.rectangleWidth, personCenter.y, this.linePaint);
-		PointF spouseCenter = new PointF(personCenter.x + this.rectangleWidth * 1.5f, personCenter.y);
+		PointF spouseCenter = new PointF(personCenter.x + (this.rectangleWidth * 1.5f), personCenter.y);
 		return this.drawPersonOrAnonymous(canvas, person.getSpouse(), spouseCenter);
 	}
 	
@@ -174,7 +176,7 @@ public class PedigreeView extends ZoomablePannableView {
 				0.2f * this.rectangleHeight, 0.2f * this.rectangleHeight, paint);
 		//canvas.drawRect(xCoord, yCoord, xCoord + this.rectangleWidth, yCoord + this.rectangleHeight, paint);
 		if(!isAnonymous && !person.getData().isAlive()) {
-			drawBlackTrianlge(canvas, centralPoint);
+			drawBlackLine(canvas, centralPoint);
 		}
 		
 		if(this.textPaint.measureText(displayName) > 0.9 * this.rectangleWidth) {
@@ -190,7 +192,7 @@ public class PedigreeView extends ZoomablePannableView {
 		return isAnonymous;
 	}
 	
-	private void drawBlackTrianlge(Canvas canvas, PointF personCenter) {
+	private void drawBlackLine(Canvas canvas, PointF personCenter) {
 		Path trianlge = new Path();
 		PointF rightCorner = new PointF(personCenter.x + this.rectangleWidth / 2, personCenter.y - this.rectangleHeight / 2);
 		trianlge.moveTo(rightCorner.x - 0.2f * this.rectangleWidth, rightCorner.y);

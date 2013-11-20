@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <EditTextPreference
+            android:key="@string/pref_key_remembered_username"
+            android:summary="@string/pref_summary_remembered_username"
+            android:title="@string/pref_title_remembered_username"
+            android:icon="@drawable/ic_pref_username" />
+    
+    <EditTextPreference
+            android:key="@string/pref_key_remembered_password"
+            android:summary="@string/pref_summary_remembered_password"
+            android:title="@string/pref_title_remembered_password"
+            android:inputType="textPassword"
+            android:icon="@drawable/ic_pref_password"  />
+    
+    <CheckBoxPreference
+			android:key="@string/pref_key_unable_automatically_login"
+			android:summary="@string/pref_summary_unable_automatically_login"
+			android:title="@string/pref_title_unable_automatically_login"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_pref_automatic_update" />
+    
+</PreferenceScreen>

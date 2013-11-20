@@ -8,6 +8,7 @@ import org.apache.http.entity.*;
 import org.apache.http.impl.client.*;
 
 import com.buhov.family.FamilyApplication;
+import com.buhov.family.PedigreeNode.PersonNode;
 import com.buhov.family.FamilyHttpClient.Entities.*;
 import com.google.gson.*;
 
@@ -20,6 +21,7 @@ public class FamilyHttpClient {
 	private static final String SERVICE_REGISTER_URL = SERVICE_ROOT_URL + "Users/Register";
 	private static final String SERVICE_LOGIN_URL = SERVICE_ROOT_URL + "Users/Login";
 	private static final String SERVICE_PEDIGREES_URL = SERVICE_ROOT_URL + "Pedigrees";
+	private static final String SERVICE_PEOPLE_URL = SERVICE_ROOT_URL + "/People";
 	
 	private FamilyApplication app;
 	private HttpClient client;
@@ -51,13 +53,33 @@ public class FamilyHttpClient {
 		return this.postRequest(SERVICE_PEDIGREES_URL, newPedigree, Pedigree[].class, user);
 	}
 	
+	public PedigreeFull addParent(User user, int personId, PersonDTO personDTO) {
+		return this.postRequest(SERVICE_PEOPLE_URL + "/AddParent/" + personId, personDTO, PedigreeFull.class, user);
+	}
+
+	public PedigreeFull addChild(User user, int personId, PersonDTO personDTO) {
+		return this.postRequest(SERVICE_PEOPLE_URL + "/AddChild/" + personId, personDTO, PedigreeFull.class, user);
+	}
+
+	public PedigreeFull addSpouse(User user, int personId, PersonDTO personDTO) {
+		return this.postRequest(SERVICE_PEOPLE_URL + "/AddSpouse/" + personId, personDTO, PedigreeFull.class, user);
+	}
+	
 	public Pedigree[] deletePedigree(User user, int pedigreeId) {
 		return this.deleteRequest(SERVICE_PEDIGREES_URL + "/" + pedigreeId, Pedigree[].class, user);
+	}
+	
+	public PedigreeFull deletePerson(User user, Integer personId) {
+		return this.deleteRequest(SERVICE_PEOPLE_URL + "/" + personId, PedigreeFull.class, user);
 	}
 	
 	public Pedigree[] updatePedigree(User user, PedigreeNew pedigreeNew) {
 		PedigreeDTO content = new PedigreeDTO(pedigreeNew.getTitle());
 		return this.putRequest(SERVICE_PEDIGREES_URL + "/" + pedigreeNew.getId(), content, Pedigree[].class, user);
+	}
+	
+	public PedigreeFull updatePerson(User user, int personId, PersonDTO personInfo) {
+		return this.putRequest(SERVICE_PEOPLE_URL + "/Update/" + personId, personInfo, PedigreeFull.class, user);
 	}
 	
 	private <TResult> TResult getRequest(String url, Class<TResult> responseEntity, User user) {

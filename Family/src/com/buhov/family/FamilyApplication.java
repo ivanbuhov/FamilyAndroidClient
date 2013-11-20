@@ -3,6 +3,7 @@ package com.buhov.family;
 import com.buhov.family.FamilyData.*;
 import com.buhov.family.FamilyDb.*;
 import com.buhov.family.FamilyHttpClient.*;
+import com.buhov.family.FamilyHttpClient.Entities.PedigreeFull;
 import com.buhov.family.FamilyHttpClient.Entities.User;
 
 import android.app.Application;
@@ -14,6 +15,9 @@ public class FamilyApplication extends Application {
 	
 	private FamilyData familyData;
 	private LoginManager loginManager;
+	
+	private PedigreeFull currentPedigree;
+	private PedigreeNode currentPedigreeNode;
 	
 	@Override
 	public void onCreate() {
@@ -36,6 +40,23 @@ public class FamilyApplication extends Application {
 	
 	public int getApiVersion() {
 		return android.os.Build.VERSION.SDK_INT;
+	}
+	
+	public PedigreeFull getCurrentPedigree() {
+		return this.currentPedigree;
+	}
+	
+	public void setCurrentPedigree(PedigreeFull pedigree) {
+		this.currentPedigree = pedigree;
+		this.currentPedigreeNode = new PedigreeNode(pedigree);
+	}
+	
+	public boolean hasCurrentPedigree() {
+		return (this.currentPedigree != null);
+	}
+	
+	public PedigreeNode getCurrentPedigreeNode() {
+		return this.currentPedigreeNode;
 	}
 	
 	public boolean isNetworkConnected() {

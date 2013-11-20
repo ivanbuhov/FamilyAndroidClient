@@ -39,6 +39,14 @@
             android:name="com.buhov.family.PedigreeActivity"
             android:label="@string/title_activity_pedigree" >
         </activity>
+        <activity
+            android:name="com.buhov.family.EditPersonActivity"
+            android:label="@string/title_activity_edit_person"
+            android:parentActivityName="com.buhov.family.PedigreeActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.buhov.family.PedigreeActivity" />
+        </activity>
     </application>
 
 </manifest>

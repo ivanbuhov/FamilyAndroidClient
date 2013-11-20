@@ -12,7 +12,7 @@ public class FamilyDbHelper extends SQLiteOpenHelper {
 	
 	static final String TABLE_NAME_USERS = "users";
 	static final String TABLE_NAME_PEDIGREES = "pedigrees";
-	static final String TABLE_NAME_PEOPLE = "peopele";
+	static final String TABLE_NAME_PEOPLE = "people";
 	
 	static final String C_ID = BaseColumns._ID;
 	static final String C_USERS_USERNAME = "username";

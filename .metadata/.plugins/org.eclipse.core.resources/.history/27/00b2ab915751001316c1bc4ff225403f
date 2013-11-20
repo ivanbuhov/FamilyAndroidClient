@@ -1,0 +1,317 @@
+package com.buhov.family;
+
+
+import com.buhov.family.FamilyData.FamilyData;
+import com.buhov.family.FamilyData.FamilyDataException;
+import com.buhov.family.FamilyHttpClient.Entities.Date;
+import com.buhov.family.FamilyHttpClient.Entities.PedigreeFull;
+import com.buhov.family.FamilyHttpClient.Entities.PersonDTO;
+import com.buhov.family.FamilyHttpClient.Entities.User;
+import com.buhov.family.PedigreeNode.PersonNode;
+
+import android.app.AlertDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.TextView;
+
+public class EditPersonActivity extends BaseActivity implements OnDateSetListener {
+	
+	public final static String EXTRA_PERSON_ID = "EXTRA_PERSON_ID";
+	public final static String BIRTH_DATE_DIALOG_TAG = "BIRTH_DATE_DIALOG_TAG";
+	
+	public final static String ADD_MODE_KEY = "ADD_MODE";
+	
+	public final static int ADD_NONE = 0;
+	public final static int ADD_PARENT = 1;
+	public final static int ADD_CHILD = 2;
+	public final static int ADD_SPOUSE = 3;
+	
+	private int addMode;
+	
+	private PersonNode person;
+	
+	private View progressView;
+	private EditText displayNameView;
+	private EditText firstNameView;
+	private EditText middleNameView;
+	private EditText lastNameView;
+	private EditText nicknameView;
+	private EditText emailView;
+	private RadioButton isAliveView;
+	private RadioButton isDeadView;
+	private RadioButton isMaleView;
+	private RadioButton isFemaleView;
+	private Date birthDate;
+	private TextView birthDateView;
+	private Button setDateButton;
+	private Button clearDateButton;
+	private DatePickerFragment birthDateFragment;
+	private EditText addressView;
+	private EditText professionView;
+	private Button saveButton;
+	
+	private UpdatePersonTask updatePersonTask;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_edit_person);
+		this.initUI();
+		this.addMode = getIntent().getIntExtra(ADD_MODE_KEY, ADD_NONE);
+		if(this.addMode == ADD_NONE) {
+			this.initPerson();
+			this.initPersonValues();
+		}
+		else {
+			this.initAddMode();
+		}
+	}
+	
+	private void initAddMode() {
+		this.saveButton.setText(getResources().getString(R.string.add));
+		this.isAliveView.setChecked(true);
+		this.isMaleView.setChecked(true);
+		switch(this.addMode) {
+			case ADD_PARENT :
+				this.setTitle(getResources().getString(R.string.title_activity_add_parent));
+			break;
+			case ADD_CHILD :
+				this.setTitle(getResources().getString(R.string.title_activity_add_child));
+			break;
+			case ADD_SPOUSE :
+				this.setTitle(getResources().getString(R.string.title_activity_add_spouse));
+			break;
+		}
+	}
+	
+	private void initUI() {
+		
+		// init UI variables
+		this.progressView = (View) findViewById(R.id.progress_edit_person);
+		this.displayNameView = (EditText)findViewById(R.id.edit_display_name);
+		this.firstNameView = (EditText)findViewById(R.id.edit_first_name);
+		this.middleNameView = (EditText)findViewById(R.id.edit_middle_name);
+		this.lastNameView = (EditText)findViewById(R.id.edit_last_name);
+		this.nicknameView = (EditText)findViewById(R.id.edit_nickname_name);
+		this.emailView = (EditText)findViewById(R.id.edit_email);
+		this.isAliveView = (RadioButton)findViewById(R.id.edit_is_alive);
+		this.isDeadView = (RadioButton)findViewById(R.id.edit_is_dead);
+		this.isMaleView = (RadioButton)findViewById(R.id.edit_is_male);
+		this.isFemaleView = (RadioButton)findViewById(R.id.edit_is_female);
+		this.birthDateFragment = new DatePickerFragment();
+		this.birthDateView = (TextView) findViewById(R.id.edit_birth_date);
+		this.setDateButton = (Button) findViewById(R.id.set_date_button);
+		this.clearDateButton = (Button) findViewById(R.id.clear_date_button);
+		this.birthDateFragment.setOnDateSetListener(this);
+		this.addressView = (EditText)findViewById(R.id.edit_address);
+		this.professionView = (EditText)findViewById(R.id.edit_profession);
+		this.saveButton = (Button)findViewById(R.id.edit_save_button);
+		this.saveButton.setOnClickListener(new SaveButtonClickListener());
+		
+		this.setDateButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				birthDateFragment.setDate(birthDate);
+				birthDateFragment.show(getFragmentManager(), BIRTH_DATE_DIALOG_TAG);
+			}
+		});
+		this.clearDateButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				birthDate = null;
+				refreshDateView();
+				
+			}
+		});
+	}
+	
+	private void initPerson() {
+		int personId = this.getIntent().getIntExtra(EXTRA_PERSON_ID, 0);
+		this.person = this.app.getCurrentPedigreeNode().getPerson(personId);
+	}
+	
+	
+	private void initPersonValues() {
+		// init person values
+		this.displayNameView.setText(this.person.getData().getDisplayName());
+		this.firstNameView.setText(this.person.getData().getFirstName());
+		this.middleNameView.setText(this.person.getData().getMiddleName());
+		this.lastNameView.setText(this.person.getData().getLastName());
+		this.nicknameView.setText(this.person.getData().getNickname());
+		this.emailView.setText(this.person.getData().getEmail());
+		this.isAliveView.setChecked(this.person.getData().isAlive());
+		this.isDeadView.setChecked(!this.person.getData().isAlive());
+		this.isMaleView.setChecked(this.person.getData().isMale());
+		this.isFemaleView.setChecked(!this.person.getData().isMale());
+		this.birthDate = Utils.parseDate(this.person.getData().getBirthDate());
+		this.refreshDateView();
+		this.addressView.setText(this.person.getData().getAddress());
+		this.professionView.setText(this.person.getData().getProfession());
+	}
+	
+	public void refreshDateView() {
+		if(this.birthDate == null) {
+			birthDateView.setText(getResources().getString(R.string.label_unknown));
+		}
+		else {
+			birthDateView.setText(this.birthDate.toString());
+		}
+	}
+
+	@Override
+	public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+		if(this.birthDate == null) {
+			this.birthDate = new Date(0, 0, 0);
+		}
+		this.birthDate.setYear(year);
+		this.birthDate.setMonth(monthOfYear + 1);
+		this.birthDate.setDay(dayOfMonth);
+		this.refreshDateView();
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.edit_person, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	private void attemptUpdatePerson(PersonDTO person) {
+    	if (this.updatePersonTask != null) {
+			return;
+		}
+    	
+    	if(this.app.getLoginManager().hasLoggedUser()) {
+    		EditPersonActivity.this.toggleView(true, progressView, null);
+        	this.updatePersonTask = new UpdatePersonTask(this.app.getLoginManager().getLoggedUser());
+        	this.updatePersonTask.execute(person);
+        }
+    }
+	
+	private void attemptAddPerson(PersonDTO person) {
+		if (this.updatePersonTask != null) {
+			return;
+		}
+    	
+    	if(this.app.getLoginManager().hasLoggedUser()) {
+    		EditPersonActivity.this.toggleView(true, progressView, null);
+        	this.updatePersonTask = new UpdatePersonTask(this.app.getLoginManager().getLoggedUser());
+        	this.updatePersonTask.execute(person);
+        }
+	}
+	
+	private void goToPeopleList() {
+		PedigreeFull pedigree = EditPersonActivity.this.app.getCurrentPedigree();
+		Intent upIntent = new Intent(EditPersonActivity.this, PedigreeActivity.class);
+		upIntent.putExtra(PedigreeActivity.EXTRA_PEDIGREE_ID, pedigree.getId());
+		upIntent.putExtra(PedigreeActivity.EXTRA_PEDIGREE_TITLE, pedigree.getTitle());
+		upIntent.putExtra(PedigreeActivity.EXTRA_PEDIGREE_OWNERID, pedigree.getOwnerId());
+		this.startActivity(upIntent);
+	}
+	
+	private class UpdatePersonTask extends AsyncTask<PersonDTO, Void, Boolean> {
+
+    	private User user;
+    	private String error = null;
+    	
+    	public UpdatePersonTask(User user) {
+    		if(user == null) {
+				throw new RuntimeException("No user specified.");
+			}
+    		this.user = user;
+    	}
+    	
+		@Override
+		protected Boolean doInBackground(PersonDTO... params) {
+			try {
+				FamilyData data = EditPersonActivity.this.app.getFamilyData();
+				int personId = EditPersonActivity.this.person.getData().getId();
+				PedigreeFull pedigree;
+				switch(addMode) {
+					case ADD_PARENT :
+						pedigree = data.addParent(this.user, personId, params[0]);
+						break;
+					case ADD_CHILD :
+						pedigree = data.addChild(this.user, personId, params[0]);
+						break;
+					case ADD_SPOUSE :
+						pedigree = data.addSpouse(this.user, personId, params[0]);
+						break;
+					case ADD_NONE :
+						pedigree = data.updatePerson(this.user, personId, params[0]);
+						break;
+					default :
+						throw new RuntimeException("No action specified.");
+				}
+				EditPersonActivity.this.app.setCurrentPedigree(pedigree);
+				return true;
+			}
+			catch(FamilyDataException e) {
+				this.error = e.getMessage();
+				return false;
+			}
+		}
+		
+		@Override
+		protected void onPostExecute(final Boolean success) {
+			updatePersonTask = null;
+
+			if (success) {
+				goToPeopleList();
+			} 
+			else {
+				String title = getResources().getString(R.string.alert_title_addition_failed);
+				String message = this.error;
+				int icon = R.drawable.ic_error;
+				AlertDialog dialog = EditPersonActivity.this.getAlert(EditPersonActivity.this, message, title, icon);
+				dialog.show();
+			}
+			
+			EditPersonActivity.this.toggleView(false, progressView, null);
+		}
+
+		@Override
+		protected void onCancelled() {
+			updatePersonTask = null;
+			EditPersonActivity.this.toggleView(false, progressView, null);
+		}
+    }
+	
+	public class SaveButtonClickListener implements OnClickListener {
+		
+		@Override
+		public void onClick(View button) {
+			PersonDTO person = new PersonDTO();
+			person.setDisplayName(displayNameView.getText().toString());
+			person.setFirstName(firstNameView.getText().toString());
+			person.setMiddleName(middleNameView.getText().toString());
+			person.setLastName(lastNameView.getText().toString());
+			person.setNickname(nicknameView.getText().toString());
+			person.setEmail(emailView.getText().toString());
+			person.isAlive(isAliveView.isChecked());
+			person.isMale(isMaleView.isChecked());
+			person.setBirthDate(Utils.getDateString(birthDate));
+			person.setAddress(addressView.getText().toString());
+			person.setProfession(professionView.getText().toString());
+			attemptUpdatePerson(person);
+		}
+	}
+
+}
