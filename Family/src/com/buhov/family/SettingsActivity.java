@@ -26,12 +26,6 @@ public class SettingsActivity extends PreferenceActivity {
 			case R.id.menu_item_my_pedigrees:
 				this.startActivity(new Intent(this, MyPedigreesActivity.class));
 			break;
-			case R.id.menu_item_settings:
-				this.startActivity(new Intent(this, SettingsActivity.class));
-			break;
-			case R.id.menu_item_login:
-				this.startActivity(new Intent(this, LoginActivity.class));
-			break;
 		}
 		
 		return true;

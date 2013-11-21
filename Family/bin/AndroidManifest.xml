@@ -47,6 +47,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.buhov.family.PedigreeActivity" />
         </activity>
+        <activity
+            android:name="com.buhov.family.ViewPersonActivity"
+            android:label="@string/title_activity_view_person" >
+        </activity>
     </application>
 
 </manifest>

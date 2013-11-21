@@ -92,6 +92,10 @@ public class PedigreeNode {
 		public Person getData() {
 			return this.data;
 		}
+		
+		public PersonNode getPerson(int id) {
+			return PedigreeNode.this.getPerson(id);
+		}
 	
 		public boolean hasSpouse() {
 			return (this.data.getSpouseId() != 0);

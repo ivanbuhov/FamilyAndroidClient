@@ -13,25 +13,41 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.SparseArray;
 
 public class PedigreeView extends ZoomablePannableView {
 
+	private static final int PERSON_TYPE_NONE = -1;
+	private static final int PERSON_TYPE_GRANDPARENT = 0;
+	private static final int PERSON_TYPE_PARENT = 2;
+	private static final int PERSON_TYPE_SIBLING = 4;
+	private static final int PERSON_TYPE_SPOUSE = 6;
+	private static final int PERSON_TYPE_CHILD = 8;
+	
+	private String[] relativesTypes = new String[] { "grandmother", "grandfather", "mother", "father",
+			"sister", "brother", "wife", "husband", "daughter", "son"};
+	
 	private PointF center;
 	
 	private float rectangleWidth = 200;
 	private float rectangleHeight = 100;
+	private boolean hasUnregisteredRectangles = false;
 	
 	private Paint malePaint;
 	private Paint femalePaint;
 	private Paint anonymousPaint;
 	private Paint linePaint;
-	private Paint textPaint;
+	private Paint namePaint;
+	private Paint currentPersonNamePaint;
+	private Paint rolePaint;
 	private Paint blackLinePaint;
 	
 	private int personId;
 	private PersonNode personNode;
 	private String anonymousDisplayName;
 	private String noPeopleMessage;
+	
+	private SparseArray<PointF> rectangles;
 	
 	public PedigreeView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -52,11 +68,23 @@ public class PedigreeView extends ZoomablePannableView {
 		this.femalePaint.setColor(Color.MAGENTA);
 		this.femalePaint.setStrokeWidth(3);
 		
-		this.textPaint = new Paint();
-		this.textPaint.setColor(Color.BLACK);
-		this.textPaint.setTextAlign(Align.CENTER);
-		this.textPaint.setTextSize(20);
-		this.textPaint.setStyle(Style.FILL);
+		this.namePaint = new Paint();
+		this.namePaint.setColor(Color.BLACK);
+		this.namePaint.setTextAlign(Align.CENTER);
+		this.namePaint.setTextSize(22);
+		this.namePaint.setStyle(Style.FILL);
+		
+		this.currentPersonNamePaint = new Paint();
+		this.currentPersonNamePaint.setColor(Color.WHITE);
+		this.currentPersonNamePaint.setTextAlign(Align.CENTER);
+		this.currentPersonNamePaint.setTextSize(30);
+		this.currentPersonNamePaint.setStyle(Style.FILL);
+		
+		this.rolePaint = new Paint();
+		this.rolePaint.setColor(Color.BLACK);
+		this.rolePaint.setTextAlign(Align.CENTER);
+		this.rolePaint.setTextSize(18);
+		this.rolePaint.setStyle(Style.FILL);
 		
 		this.blackLinePaint = new Paint();
 		this.blackLinePaint.setColor(Color.BLACK);
@@ -71,19 +99,20 @@ public class PedigreeView extends ZoomablePannableView {
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		if(this.personNode == null) {
-			canvas.drawText(this.noPeopleMessage, this.center.x, this.center.y, this.textPaint);
+			canvas.drawText(this.noPeopleMessage, this.center.x, this.center.y, this.namePaint);
 		}
 		else {
 			this.drawTree(canvas, this.personNode);
 		}
+		this.hasUnregisteredRectangles = false;
 		canvas.restore();
 	}
 	
 	private void drawTree(Canvas canvas, PersonNode person) {
-		this.drawPersonOrAnonymous(canvas, this.personNode, this.center);
+		this.drawPersonOrAnonymous(canvas, this.personNode, this.center, PERSON_TYPE_NONE);
 		this.drawParentsTree(canvas, person, this.center);
 		if(person.getParentsCount() > 0) {
-			this.drawSiblings(canvas, person, this.center, true);
+			this.drawSiblings(canvas, person, this.center, true, PERSON_TYPE_SIBLING);
 		}
 		if(person.getChildrenCount() > 0 || person.hasSpouse()) {
 			this.drawSpouseOrAnonymous(canvas, person, this.center);
@@ -97,7 +126,7 @@ public class PedigreeView extends ZoomablePannableView {
 		canvas.drawLine(personCenter.x + (this.rectangleWidth / 2), personCenter.y, 
 				personCenter.x + this.rectangleWidth, personCenter.y, this.linePaint);
 		PointF spouseCenter = new PointF(personCenter.x + (this.rectangleWidth * 1.5f), personCenter.y);
-		return this.drawPersonOrAnonymous(canvas, person.getSpouse(), spouseCenter);
+		return this.drawPersonOrAnonymous(canvas, person.getSpouse(), spouseCenter, PERSON_TYPE_SPOUSE);
 	}
 	
 	private void drawParentsTree(Canvas canvas, PersonNode person, PointF personCenter) {
@@ -107,26 +136,26 @@ public class PedigreeView extends ZoomablePannableView {
 			PointF parentCenter = new PointF(0, 0);
 			
 			if(this.hasWideParentsView(person)) {
-				parentCenter = this.drawParents(canvas, person, personCenter, true);
+				parentCenter = this.drawParents(canvas, person, personCenter, true, PERSON_TYPE_PARENT);
 			}
 			else {
-				parentCenter = this.drawParents(canvas, person, personCenter, false);
+				parentCenter = this.drawParents(canvas, person, personCenter, false, PERSON_TYPE_PARENT);
 				halfLine /= 4;
 			}
 			
 			if(parents[0] != null && parents[0].hasAnyParents()) {
 				PointF center = new PointF(parentCenter.x - halfLine - (this.rectangleWidth / 2), parentCenter.y);
-				this.drawParents(canvas, parents[0], center, false);
+				this.drawParents(canvas, parents[0], center, false, PERSON_TYPE_GRANDPARENT);
 			}
 
 			if(parents[1] != null && parents[1].hasAnyParents()) {
 				PointF center = new PointF(parentCenter.x + halfLine + (this.rectangleWidth / 2), parentCenter.y);
-				this.drawParents(canvas, parents[1], center, false);
+				this.drawParents(canvas, parents[1], center, false, PERSON_TYPE_GRANDPARENT);
 			}
 		}
 	}
 	
-	private PointF drawParents(Canvas canvas, PersonNode person, PointF personCenter, boolean wide) {
+	private PointF drawParents(Canvas canvas, PersonNode person, PointF personCenter, boolean wide, int personType) {
 		PersonNode[] parents = person.getParents();
 		float destY = personCenter.y - this.rectangleHeight * 2.5f;
 		canvas.drawLine(personCenter.x, personCenter.y - (this.rectangleHeight / 2), 
@@ -141,8 +170,8 @@ public class PedigreeView extends ZoomablePannableView {
 				personCenter.x + halfLine, destY, this.linePaint);
 		PointF fatherCenter = new PointF(personCenter.x - halfLine - (this.rectangleWidth / 2), destY);
 		PointF motherCenter = new PointF(personCenter.x + halfLine + (this.rectangleWidth / 2), destY);
-		this.drawPersonOrAnonymous(canvas, parents[0], fatherCenter);
-		this.drawPersonOrAnonymous(canvas, parents[1], motherCenter);
+		this.drawPersonOrAnonymous(canvas, parents[0], fatherCenter, personType);
+		this.drawPersonOrAnonymous(canvas, parents[1], motherCenter, personType);
 		return new PointF(personCenter.x, destY);
 	}
 	
@@ -160,34 +189,46 @@ public class PedigreeView extends ZoomablePannableView {
 		return wide;
 	}
 	
-	private boolean drawPersonOrAnonymous(Canvas canvas, PersonNode person, PointF centralPoint) {
+	private boolean drawPersonOrAnonymous(Canvas canvas, PersonNode person, PointF centralPoint, int personType) {
 		boolean isAnonymous = true;
-		Paint paint = this.anonymousPaint;
+		Paint backgroundPaint = this.anonymousPaint;
+		Paint namePaint = this.namePaint;
 		String displayName = this.anonymousDisplayName;
 		if(person != null) {
-			paint = person.getData().isMale() ? this.malePaint : this.femalePaint;
-			displayName = person.getData().getDisplayName();
 			isAnonymous = false;
+			backgroundPaint = person.getData().isMale() ? this.malePaint : this.femalePaint;
+			if(personType == PERSON_TYPE_NONE) {
+				namePaint = this.currentPersonNamePaint;
+			}
+			displayName = person.getData().getDisplayName();
 		}
 		
 		float xCoord = centralPoint.x - (this.rectangleWidth/2);
 		float yCoord = centralPoint.y - (this.rectangleHeight/2);
 		canvas.drawRoundRect(new RectF(xCoord, yCoord, xCoord + this.rectangleWidth, yCoord + this.rectangleHeight), 
-				0.2f * this.rectangleHeight, 0.2f * this.rectangleHeight, paint);
+				0.2f * this.rectangleHeight, 0.2f * this.rectangleHeight, backgroundPaint);
 		//canvas.drawRect(xCoord, yCoord, xCoord + this.rectangleWidth, yCoord + this.rectangleHeight, paint);
 		if(!isAnonymous && !person.getData().isAlive()) {
 			drawBlackLine(canvas, centralPoint);
 		}
 		
-		if(this.textPaint.measureText(displayName) > 0.9 * this.rectangleWidth) {
-			float textWidth = this.textPaint.measureText(displayName);
+		if(namePaint.measureText(displayName) > 0.9 * this.rectangleWidth) {
+			float textWidth = this.namePaint.measureText(displayName);
 			float rectWidth = 0.9f * this.rectangleWidth;
 			int end = (int)(displayName.length() / (textWidth / rectWidth)) - 3;
 			String croppedDisplayName = displayName.substring(0, end) + "...";
-			canvas.drawText(croppedDisplayName, centralPoint.x, centralPoint.y, this.textPaint);
+			canvas.drawText(croppedDisplayName, centralPoint.x, centralPoint.y - 15, namePaint);
 		}
 		else {
-			canvas.drawText(displayName, centralPoint.x, centralPoint.y, this.textPaint);
+			canvas.drawText(displayName, centralPoint.x, centralPoint.y, namePaint);
+		}
+		
+		if(!isAnonymous && personType != PERSON_TYPE_NONE) {
+			String type = person.getData().isMale() ? this.relativesTypes[personType + 1] : this.relativesTypes[personType];
+			canvas.drawText(type, centralPoint.x, centralPoint.y + 20, this.rolePaint);
+		}
+		if(this.hasUnregisteredRectangles && !isAnonymous) {
+			this.registerPersonRectangle(person.getData().getId(), centralPoint);
 		}
 		return isAnonymous;
 	}
@@ -202,8 +243,8 @@ public class PedigreeView extends ZoomablePannableView {
 		canvas.drawPath(trianlge, this.blackLinePaint);
 	}
 	
-	private void drawSiblings(Canvas canvas, PersonNode person, PointF personCenter, boolean spouseCheck) {
-		boolean hasSpouse = (spouseCheck) ? (person.getChildrenCount() > 0) : false;
+	private void drawSiblings(Canvas canvas, PersonNode person, PointF personCenter, boolean spouseCheck, int personType) {
+		boolean hasSpouse = (spouseCheck) ? (person.hasSpouse() || person.getChildrenCount() > 0) : false;
 		ArrayList<PersonNode> siblings = person.getSiblings();
 		
 		float absXDistance = this.rectangleWidth * 1.5f;
@@ -230,7 +271,7 @@ public class PedigreeView extends ZoomablePannableView {
 			}
 			
 			canvas.drawLine(upPoint.x, upPoint.y, upPoint.x, upPoint.y + yDistance - (this.rectangleHeight/2), this.linePaint);
-			this.drawPersonOrAnonymous(canvas, siblings.get(i), new PointF(upPoint.x, upPoint.y + yDistance));
+			this.drawPersonOrAnonymous(canvas, siblings.get(i), new PointF(upPoint.x, upPoint.y + yDistance), personType);
 			
 			leftTurn = !leftTurn;
 		}
@@ -245,8 +286,8 @@ public class PedigreeView extends ZoomablePannableView {
 		float firstChildX = personCenter.x + (this.rectangleWidth * 3) / 4;
 		float firstChildY = personCenter.y + this.rectangleHeight * 3;
 		canvas.drawLine(firstChildX, personCenter.y, firstChildX, firstChildY - (this.rectangleHeight * 0.5f), this.linePaint);
-		this.drawPersonOrAnonymous(canvas, children.get(0), new PointF(firstChildX, firstChildY));
-		this.drawSiblings(canvas, children.get(0), new PointF(firstChildX, firstChildY), false);
+		this.drawPersonOrAnonymous(canvas, children.get(0), new PointF(firstChildX, firstChildY), PERSON_TYPE_CHILD);
+		this.drawSiblings(canvas, children.get(0), new PointF(firstChildX, firstChildY), false, PERSON_TYPE_CHILD);
 	}
 	
 	@Override
@@ -266,7 +307,9 @@ public class PedigreeView extends ZoomablePannableView {
 			this.personId = personNode.getData().getId();
 		}
 		this.personNode = personNode;
-		this.resetScaleAndTransformation();
+		this.rectangles = new SparseArray<PointF>();
+		this.hasUnregisteredRectangles = true;
+		this.resetTransformation();
 		this.invalidate();
 	}
 	
@@ -292,5 +335,31 @@ public class PedigreeView extends ZoomablePannableView {
 	
 	public void setNoPeopleMessage(String noPeopleMessage) {
 		this.noPeopleMessage = noPeopleMessage;
+	}
+
+	private void registerPersonRectangle(int personId, PointF centralPoint) {
+		
+		if(this.rectangles.get(personId) == null) {
+			float x = centralPoint.x - (this.rectangleWidth / 2);
+			float y = centralPoint.y - (this.rectangleHeight / 2);
+			this.rectangles.put(personId, new PointF(x, y));
+		}
+	}
+	
+	@Override
+	protected void onDoubleTap(float x, float y) {
+		float realX = (x - this.translateX * PANNING_SPEED) / (this.scaleFactor);
+		float realY = (y  - this.translateY * PANNING_SPEED) / (this.scaleFactor);
+		int personId = 0;
+		for(int i = 0; i < this.rectangles.size(); i++) {
+		   personId = this.rectangles.keyAt(i);
+		   PointF rectCorner = this.rectangles.get(personId);
+		   if(rectCorner.x < realX && realX < (rectCorner.x + this.rectangleWidth) &&
+			  rectCorner.y < realY && realY < (rectCorner.y + this.rectangleHeight)) {
+			   PersonNode tappedPerson = this.personNode.getPerson(personId);
+			   this.setPersonNode(tappedPerson);
+			   break;
+		   }
+		}
 	}
 }

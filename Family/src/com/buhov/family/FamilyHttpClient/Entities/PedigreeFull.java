@@ -1,7 +1,5 @@
 package com.buhov.family.FamilyHttpClient.Entities;
 
-import java.util.List;
-
 public class PedigreeFull {
 	
 	private int id;

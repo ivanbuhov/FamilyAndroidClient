@@ -24,7 +24,6 @@ import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
-import android.widget.Toast;
 
 public class PedigreeActivity extends BaseActivity {
 	
@@ -370,17 +369,18 @@ public class PedigreeActivity extends BaseActivity {
 			
 			switch(item.getItemId()) {
 				case R.id.context_menu_view:
-					// PedigreeActivity.this.attemptViewPedigree(selectedPerson);
-					Toast.makeText(PedigreeActivity.this, "View", Toast.LENGTH_SHORT).show();
+					Intent viewIntent = new Intent(PedigreeActivity.this, ViewPersonActivity.class);
+					viewIntent.putExtra(ViewPersonActivity.EXTRA_PERSON_ID, this.selectedPerson.getId());
+					startActivity(viewIntent);
 					mode.finish();
 				break;
 				case R.id.context_menu_add_person:
 					showAddPersonPopupMenu();
 				break;
 				case R.id.context_menu_edit:
-					Intent intent = new Intent(PedigreeActivity.this, EditPersonActivity.class);
-					intent.putExtra(EditPersonActivity.EXTRA_PERSON_ID, this.selectedPerson.getId());
-					startActivity(intent);
+					Intent editIntent = new Intent(PedigreeActivity.this, EditPersonActivity.class);
+					editIntent.putExtra(EditPersonActivity.EXTRA_PERSON_ID, this.selectedPerson.getId());
+					startActivity(editIntent);
 					mode.finish();
 				break;
 				case R.id.context_menu_delete:
@@ -455,4 +455,5 @@ public class PedigreeActivity extends BaseActivity {
 		}
 		
 	}
+
 }

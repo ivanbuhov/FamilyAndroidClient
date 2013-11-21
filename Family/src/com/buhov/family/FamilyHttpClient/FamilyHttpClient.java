@@ -8,7 +8,6 @@ import org.apache.http.entity.*;
 import org.apache.http.impl.client.*;
 
 import com.buhov.family.FamilyApplication;
-import com.buhov.family.PedigreeNode.PersonNode;
 import com.buhov.family.FamilyHttpClient.Entities.*;
 import com.google.gson.*;
 

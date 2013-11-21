@@ -1,5 +1,7 @@
 package com.buhov.family;
 
+import com.buhov.family.FamilyHttpClient.Entities.Pedigree;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.animation.Animator;
@@ -48,8 +50,8 @@ public class BaseActivity extends Activity {
 			case R.id.menu_item_settings:
 				this.startActivity(new Intent(this, SettingsActivity.class));
 			break;
-			case R.id.menu_item_login:
-				this.startActivity(new Intent(this, LoginActivity.class));
+			case R.id.menu_item_logout:
+				this.logOut();
 			break;
 		}
 		
@@ -75,6 +77,14 @@ public class BaseActivity extends Activity {
 		logoutIntent.putExtra(LoginActivity.EXTRA_LOGOUT_KEY, true);
 		startActivity(logoutIntent);
 	}
+	
+	protected void attemptViewPedigree(Pedigree pedigree) {
+    	Intent intent = new Intent(this, PedigreeActivity.class);
+    	intent.putExtra(PedigreeActivity.EXTRA_PEDIGREE_ID, pedigree.getId());
+    	intent.putExtra(PedigreeActivity.EXTRA_PEDIGREE_TITLE, pedigree.getTitle());
+    	intent.putExtra(PedigreeActivity.EXTRA_PEDIGREE_OWNERID, pedigree.getOwnerId());
+    	startActivity(intent);
+    }
 	
 	// Shows and hides views in the activity.
 	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)

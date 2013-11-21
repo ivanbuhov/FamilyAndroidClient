@@ -3,9 +3,10 @@ package com.buhov.family;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
-import android.view.View;;
+import android.view.View;
 
 public class ZoomablePannableView extends View {
 
@@ -18,8 +19,9 @@ public class ZoomablePannableView extends View {
 	protected static final float MIN_ZOOM = 0.1f;
 	protected static final float MAX_ZOOM = 10f;
 	
-	private static final float PANNING_SPEED = 1f;
+	protected static final float PANNING_SPEED = 1f;
 
+	protected Context context;
 	//This flag reflects whether the finger was actually dragged across the screen
 	protected boolean dragged = true;
 	
@@ -41,12 +43,15 @@ public class ZoomablePannableView extends View {
 	protected int  mode;
 	protected float scaleFactor;
 	protected ScaleGestureDetector scaleDetector;
+	protected GestureDetector doubleTapDetector;
 	
 	public ZoomablePannableView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		this.context = context;
 		this.mode = MODE_NONE;
 		this.scaleFactor = 1.f;
 		this.scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+		this.doubleTapDetector = new GestureDetector(context, new CustomDoubleTapListener());
 	}
 
 	@Override
@@ -106,6 +111,8 @@ public class ZoomablePannableView extends View {
 		}
 		
 		this.scaleDetector.onTouchEvent(event);
+		this.doubleTapDetector.onTouchEvent(event);
+		
 		//The only time we want to re-draw the canvas is if we are panning (which happens when the mode is
 		//DRAG and the zoom factor is not equal to 1) or if we're zooming
 		if ((this.mode == MODE_DRAG && this.dragged) || this.mode == MODE_ZOOM) {
@@ -115,8 +122,9 @@ public class ZoomablePannableView extends View {
 		return true;
 	}
 	
-	public void resetScaleAndTransformation() {
-		this.scaleFactor = 1f;
+	public void resetTransformation() {
+		this.previousTranslateX = 0;
+		this.previousTranslateY = 0;
 		this.translateX = 0;
 		this.translateY = 0;
 	}
@@ -128,5 +136,25 @@ public class ZoomablePannableView extends View {
 			scaleFactor = Math.max(MIN_ZOOM, Math.min(scaleFactor, MAX_ZOOM));
 			return true;
 		}
+	}
+	
+	private class CustomDoubleTapListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+        
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            float x = e.getX();
+            float y = e.getY();
+            ZoomablePannableView.this.onDoubleTap(x, y);
+            return true;
+        }
+    }
+	
+	protected void onDoubleTap(float x, float y) {
+		
 	}
 }

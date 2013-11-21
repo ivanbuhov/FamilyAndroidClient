@@ -4,6 +4,7 @@ package com.buhov.family;
 import com.buhov.family.FamilyData.FamilyData;
 import com.buhov.family.FamilyData.FamilyDataException;
 import com.buhov.family.FamilyHttpClient.Entities.Date;
+import com.buhov.family.FamilyHttpClient.Entities.Pedigree;
 import com.buhov.family.FamilyHttpClient.Entities.PedigreeFull;
 import com.buhov.family.FamilyHttpClient.Entities.PersonDTO;
 import com.buhov.family.FamilyHttpClient.Entities.User;
@@ -187,10 +188,16 @@ public class EditPersonActivity extends BaseActivity implements OnDateSetListene
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch(item.getItemId()){
+			case R.id.menu_item_list:
+				PedigreeFull current = this.app.getCurrentPedigree();
+				Pedigree intentPedigree = new Pedigree(current.getId(), current.getTitle(), current.getOwnerId());
+				this.attemptViewPedigree(intentPedigree);
+				return true;
+			default :
+				return super.onMenuItemSelected(featureId, item);
 		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	private void attemptUpdatePerson(PersonDTO person) {

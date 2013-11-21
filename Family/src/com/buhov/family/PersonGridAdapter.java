@@ -3,15 +3,11 @@ package com.buhov.family;
 import com.buhov.family.FamilyHttpClient.Entities.Person;
 
 import android.content.Context;
-import android.database.MergeCursor;
-import android.graphics.Paint.Align;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 public class PersonGridAdapter extends BaseAdapter {

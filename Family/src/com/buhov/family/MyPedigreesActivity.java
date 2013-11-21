@@ -10,13 +10,13 @@ import android.app.AlertDialog;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.*;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 public class MyPedigreesActivity extends BaseActivity implements PedigreeEditHandler, PedigreeAddHandler {
 
@@ -26,6 +26,7 @@ public class MyPedigreesActivity extends BaseActivity implements PedigreeEditHan
 	private View progressView;
 	private Pedigree[] pedigrees;
 	private ListView contentListView;
+	private TextView noPedigreesMessage;
 	private AlertDialog deletionAlert;
 	private ActionMode cabMode = null;
 	private int selectedPosition = -1;
@@ -36,12 +37,15 @@ public class MyPedigreesActivity extends BaseActivity implements PedigreeEditHan
 	private UpdatePedigreeTask updatePedigreeTask;
 	private ArrayAdapter<Pedigree> pedigreesAdapter;
 	
+	
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_pedigrees);
         this.progressView = findViewById(R.id.progress_my_pedigrees);
         this.contentListView = (ListView) findViewById(R.id.content_my_pedigrees);
+        this.noPedigreesMessage = (TextView) findViewById(R.id.no_pedigrees_message);
         this.getMyPedigreesTask = null;
         this.pedigreesAdapter = null;
         // Register listeners for list events (regular click and long click)
@@ -127,19 +131,21 @@ public class MyPedigreesActivity extends BaseActivity implements PedigreeEditHan
         	this.addPedigreeTask.execute(newPedigree);
         }
 	}
-    
-    private void attemptViewPedigree(Pedigree pedigree) {
-    	Intent intent = new Intent(this, PedigreeActivity.class);
-    	intent.putExtra(PedigreeActivity.EXTRA_PEDIGREE_ID, pedigree.getId());
-    	intent.putExtra(PedigreeActivity.EXTRA_PEDIGREE_TITLE, pedigree.getTitle());
-    	intent.putExtra(PedigreeActivity.EXTRA_PEDIGREE_OWNERID, pedigree.getOwnerId());
-    	startActivity(intent);
-    }
-    
+
 	private void refreshList() {
 		pedigreesAdapter = new ArrayAdapter<Pedigree>(this,android.R.layout.simple_list_item_1, 
 				android.R.id.text1, this.pedigrees);
 		contentListView.setAdapter(pedigreesAdapter);
+		handleNoPedigreesMsg();
+	}
+	
+	private void handleNoPedigreesMsg() {
+		if(this.pedigrees.length == 0) {
+			this.noPedigreesMessage.setVisibility(View.VISIBLE);
+		}
+		else {
+			this.noPedigreesMessage.setVisibility(View.GONE);
+		}
 	}
 	
     private AlertDialog getPedigreeDeletionAlert(String title) {
@@ -403,33 +409,27 @@ public class MyPedigreesActivity extends BaseActivity implements PedigreeEditHan
     	
 		@Override
 		public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-			Pedigree selectedPedigree = (Pedigree)contentListView.getItemAtPosition(this.selectedPosition);
 			
 			switch(item.getItemId()) {
 				case R.id.context_menu_view:
-					MyPedigreesActivity.this.attemptViewPedigree(selectedPedigree);
+					MyPedigreesActivity.this.attemptViewPedigree(this.selectedPedigree);
 					mode.finish();
 				break;
 				case R.id.context_menu_edit:
-					MyPedigreesActivity.this.showEditPedigreeDialog(selectedPedigree);
+					MyPedigreesActivity.this.showEditPedigreeDialog(this.selectedPedigree);
 					mode.finish();
 				break;
 				case R.id.context_menu_delete:
-					getPedigreeDeletionAlert(selectedPedigree.getTitle()).show();
+					getPedigreeDeletionAlert(this.selectedPedigree.getTitle()).show();
 					mode.finish();
 				break;
 			}
 			return true;
 		}
 
-		@SuppressWarnings("deprecation")
 		@Override
 		public void onDestroyActionMode(ActionMode mode) {
 			mode = null;
-			// Deselect the selected item
-			contentListView.getChildAt(this.selectedPosition)
-			.setBackgroundDrawable(contentListView.getBackground());
-			MyPedigreesActivity.this.contentListView.setItemChecked(this.selectedPosition, false);
 		}
 
 		@Override
@@ -447,7 +447,6 @@ public class MyPedigreesActivity extends BaseActivity implements PedigreeEditHan
 			}
 			MyPedigreesActivity.this.selectedPosition = position;
 			MyPedigreesActivity.this.contentListView.setItemChecked(position, true);
-			view.setBackgroundResource(R.color.holo_blue_bright);
 			cabMode = startActionMode(new PedigreesListActionModeCallback());
 			return true;
 	    }
@@ -458,6 +457,9 @@ public class MyPedigreesActivity extends BaseActivity implements PedigreeEditHan
 
 		@Override
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			if(cabMode != null) {
+				cabMode.finish();
+			}
 			Pedigree pedigree = (Pedigree)contentListView.getItemAtPosition(position);
 			attemptViewPedigree(pedigree);
 		}

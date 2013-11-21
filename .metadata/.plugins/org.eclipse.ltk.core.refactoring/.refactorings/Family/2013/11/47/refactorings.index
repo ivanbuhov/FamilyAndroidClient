@@ -13,3 +13,9 @@
 1384950694629	Delete element
 1384954165932	Delete elements
 1384954230710	Delete element
+1384975157851	Rename field 'textPaint'
+1384979080253	Rename field 'guestureDetector'
+1384979347867	Rename type 'DoubleTapListener'
+1384981936982	Rename local variable 'personId'
+1385031718633	Rename method 'resetScaleAndTransformation'
+1385039632292	Rename local variable 'paint'
