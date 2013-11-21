@@ -1,0 +1,64 @@
+package com.buhov.family;
+
+import com.buhov.family.PedigreeNode.PersonNode;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.view.Menu;
+import android.widget.TextView;
+
+public class ViewPersonActivity extends BaseActivity {
+
+	public final static String EXTRA_PERSON_ID = "EXTRA_PERSON_ID";
+	private PersonNode person;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_view_person);
+		this.initPerson();
+		this.initPersonValues();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.view_person, menu);
+		return true;
+	}
+	
+	private void initPerson() {
+		int personId = getIntent().getIntExtra(EXTRA_PERSON_ID, 0);
+		this.person = this.app.getCurrentPedigreeNode().getPerson(personId);
+	}
+	
+	private void initPersonValues() {
+		String displayNameText = getResources().getString(R.string.label_display_name)
+				+ this.person.getData().getDisplayName();
+		String firstNameText = getResources().getString(R.string.label_first_name)
+				+ this.person.getData().getFirstName();
+		String middleNameText = getResources().getString(R.string.label_middle_name)
+				+ this.person.getData().getMiddleName();
+		String lastNameText = getResources().getString(R.string.label_last_name)
+				+ this.person.getData().getLastName();
+		String nicknameNameText = getResources().getString(R.string.label_nickname)
+				+ this.person.getData().getNickname();
+		String birthDateValue = getResources().getString(R.string.label_unknown);
+		Date parsedDate = Utils.parseDate(this.person.getData().getBirthDate());
+		String birthDateText = getResources().getString(R.string.label_birth_date)
+				+ this.person.getData().getBirthDate();
+		String aliveValue = this.person.getData().isAlive() ? getResources().getString(R.string.label_alive) :
+			getResources().getString(R.string.label_dead);
+		String isAliveText = getResources().getString(R.string.label_is_alive) + aliveValue;
+		String genderValue = this.person.getData().isMale() ? getResources().getString(R.string.label_male) :
+			getResources().getString(R.string.label_female);
+		String genderText = getResources().getString(R.string.label_gender)
+				+ this.person.getData().isMale();
+		String emailText = getResources().getString(R.string.label_email);
+		String addressText = getResources().getString(R.string.label_address);
+		String professionText = getResources().getString(R.string.label_profession);
+		
+		
+	}
+
+}

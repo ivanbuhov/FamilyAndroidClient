@@ -1,0 +1,33 @@
+package com.buhov.family;
+
+import com.buhov.family.PedigreeNode.PersonNode;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.view.Menu;
+
+public class ViewPersonActivity extends BaseActivity {
+
+	public final static String EXTRA_PERSON_ID = "EXTRA_PERSON_ID";
+	private PersonNode person;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_view_person);
+		this.initPerson();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.view_person, menu);
+		return true;
+	}
+	
+	private void initPerson() {
+		int personId = getIntent().getIntExtra(EXTRA_PERSON_ID, 0);
+		this.person = this.app.getCurrentPedigreeNode().getPerson(personId);
+	}
+
+}

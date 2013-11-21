@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.buhov.family"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="11"
+        android:targetSdkVersion="17" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:name="com.buhov.family.FamilyApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.buhov.family.LoginActivity"
+            android:label="@string/app_name"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.buhov.family.MyPedigreesActivity"
+            android:label="@string/title_activity_my_pedigrees" >
+        </activity>
+        <activity
+            android:name="com.buhov.family.SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
+        <activity
+            android:name="com.buhov.family.PedigreeActivity"
+            android:label="@string/title_activity_pedigree" >
+        </activity>
+        <activity
+            android:name="com.buhov.family.EditPersonActivity"
+            android:label="@string/title_activity_edit_person"
+            android:parentActivityName="com.buhov.family.PedigreeActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.buhov.family.PedigreeActivity" />
+        </activity>
+    </application>
+
+</manifest>

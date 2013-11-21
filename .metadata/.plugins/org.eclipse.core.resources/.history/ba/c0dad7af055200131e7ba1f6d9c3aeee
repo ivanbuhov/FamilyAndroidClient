@@ -1,0 +1,96 @@
+package com.buhov.family;
+
+import com.buhov.family.PedigreeNode.PersonNode;
+import com.buhov.family.FamilyHttpClient.Entities.Date;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.view.Menu;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+public class ViewPersonActivity extends BaseActivity {
+
+	public final static String EXTRA_PERSON_ID = "EXTRA_PERSON_ID";
+	private PersonNode person;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_view_person);
+		this.initPerson();
+		this.initPersonValues();
+		this.setTitle(this.person.getData().getDisplayName());
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.view_person, menu);
+		return true;
+	}
+	
+	private void initPerson() {
+		int personId = getIntent().getIntExtra(EXTRA_PERSON_ID, 0);
+		this.person = this.app.getCurrentPedigreeNode().getPerson(personId);
+	}
+	
+	private void initPersonValues() {
+		// calculate the TextViews values
+		int imageResource = this.person.getData().isMale() ? R.drawable.male_avatar : R.drawable.female_avatar;
+		String displayNameText = this.getValue(this.person.getData().getDisplayName());
+		String firstNameText = getResources().getString(R.string.label_first_name)
+				+ this.getValue(this.person.getData().getFirstName());
+		String middleNameText = getResources().getString(R.string.label_middle_name)
+				+ this.getValue(this.person.getData().getMiddleName());
+		String lastNameText = getResources().getString(R.string.label_last_name)
+				+ this.getValue(this.person.getData().getLastName());
+		String nicknameNameText = getResources().getString(R.string.label_nickname)
+				+ this.getValue(this.person.getData().getNickname());
+		String birthDateValue = null;
+		Date parsedDate = Utils.parseDate(this.person.getData().getBirthDate());
+		if(parsedDate != null) {
+			birthDateValue = Utils.getDateString(parsedDate);
+		}
+		String birthDateText = getResources().getString(R.string.label_birth_date) + this.getValue(birthDateValue);
+		String aliveValue = this.person.getData().isAlive() ? getResources().getString(R.string.label_alive) :
+			getResources().getString(R.string.label_dead);
+		String isAliveText = getResources().getString(R.string.label_is_alive) + " " + aliveValue;
+		String genderValue = this.person.getData().isMale() ? getResources().getString(R.string.label_male) :
+			getResources().getString(R.string.label_female);
+		String genderText = getResources().getString(R.string.label_gender) + " " + genderValue;
+		String emailText = getResources().getString(R.string.label_email)
+				+ this.getValue(this.person.getData().getEmail());
+		String addressText = getResources().getString(R.string.label_address)
+				+ this.getValue(this.person.getData().getAddress());
+		String professionText = getResources().getString(R.string.label_profession)
+				+ this.getValue(this.person.getData().getProfession());
+		
+		// set the values
+		((ImageView)findViewById(R.id.person_image)).setImageResource(imageResource);
+		((TextView)findViewById(R.id.person_display_name)).setText(displayNameText);
+		((TextView)findViewById(R.id.person_first_name)).setText(firstNameText);
+		((TextView)findViewById(R.id.person_middle_name)).setText(middleNameText);
+		((TextView)findViewById(R.id.person_last_name)).setText(lastNameText);
+		((TextView)findViewById(R.id.person_nickname)).setText(nicknameNameText);
+		((TextView)findViewById(R.id.person_birth_date)).setText(birthDateText);
+		((TextView)findViewById(R.id.person_is_alive)).setText(isAliveText);
+		((TextView)findViewById(R.id.person_gender)).setText(genderText);
+		((TextView)findViewById(R.id.person_email)).setText(emailText);
+		((TextView)findViewById(R.id.person_address)).setText(addressText);
+		((TextView)findViewById(R.id.person_profession)).setText(professionText);
+	}
+	
+	private String getValue(String value) {
+		if(value == null) {
+			return (" " + getResources().getString(R.string.label_unknown));
+		}
+		String trimmedValue = value.trim();
+		if(trimmedValue == "") {
+			return (" " + getResources().getString(R.string.label_unknown));
+		}
+		
+		return (" " + trimmedValue);
+	}
+
+}

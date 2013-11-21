@@ -1,0 +1,159 @@
+package com.buhov.family;
+
+import android.content.Context;
+import android.graphics.Canvas;
+import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.view.View;
+
+public class ZoomablePannableView extends View {
+
+	// Different modes 
+	protected static final int MODE_NONE = 0;
+	protected static final int MODE_DRAG = 1;
+	protected static final int MODE_ZOOM = 2;
+	
+	// Maximum and minimum zoom range
+	protected static final float MIN_ZOOM = 0.1f;
+	protected static final float MAX_ZOOM = 10f;
+	
+	private static final float PANNING_SPEED = 1f;
+
+	protected Context context;
+	//This flag reflects whether the finger was actually dragged across the screen
+	protected boolean dragged = true;
+	
+	//These two variables keep track of the X and Y coordinate of the finger when it first
+	//touches the screen
+	protected float startX = 0f;
+	protected float startY = 0f;
+	
+	//These two variables keep track of the amount we translated the X and Y coordinates, the last time we
+	//panned.
+	protected float previousTranslateX = 0f;
+	protected float previousTranslateY = 0f;
+	
+	//These two variables keep track of the amount we need to translate the canvas along the X
+	//and the Y coordinate
+	protected float translateX = 0f;
+	protected float translateY = 0f;
+	
+	protected int  mode;
+	protected float scaleFactor;
+	protected ScaleGestureDetector scaleDetector;
+	protected GestureDetector doubleTapDetector;
+	
+	public ZoomablePannableView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		this.context = context;
+		this.mode = MODE_NONE;
+		this.scaleFactor = 1.f;
+		this.scaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+		this.doubleTapDetector = new GestureDetector(context, new CustomDoubleTapListener());
+	}
+
+	@Override
+	protected void onDraw(Canvas canvas) {
+		super.onDraw(canvas);
+		canvas.save();
+		canvas.scale(scaleFactor, scaleFactor);
+		//We need to divide by the scale factor here, otherwise we end up with excessive panning based on our zoom level
+		//because the translation amount also gets scaled according to how much we've zoomed into the canvas.
+		canvas.translate( (translateX * PANNING_SPEED) / scaleFactor, (translateY * PANNING_SPEED) / scaleFactor);
+	}
+	
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		
+		switch (event.getAction() & MotionEvent.ACTION_MASK) {
+			case MotionEvent.ACTION_DOWN:
+				this.mode = MODE_DRAG;
+				//We assign the current X and Y coordinate of the finger to startX and startY minus the previously translated
+				//amount for each coordinates.            
+				this.startX = event.getX() - this.previousTranslateX;
+				this.startY = event.getY() - this.previousTranslateY;
+				break;
+			case MotionEvent.ACTION_MOVE:
+				// Calculates the traslation coordinates of the view
+				this.translateX = event.getX() - this.startX;
+				this.translateY = event.getY() - this.startY;
+				
+				//We cannot use startX and startY directly because we have adjusted their values using the previous translation values. This is why we need to add those
+				//values to startX and startY so that we can get the actual coordinates of the finger.
+				double distance = Math.sqrt(Math.pow(event.getX() - (this.startX + this.previousTranslateX), 2) + 
+						Math.pow(event.getY() - (this.startY + this.previousTranslateY), 2));
+				if(distance > 0) {
+					this.dragged = true;
+				}    
+				break;
+			case MotionEvent.ACTION_POINTER_DOWN:
+				//The second finger has been placed on the screen and so we need to set the mode to ZOOM
+				this.mode = MODE_ZOOM;
+				break;
+			case MotionEvent.ACTION_UP:
+				//All fingers are off the screen and so we're neither dragging nor zooming.
+				this.mode = MODE_NONE;
+				this.dragged = false;
+				//All fingers went up, so let's save the value of translateX and translateY
+				this.previousTranslateX = this.translateX;
+				this.previousTranslateY = this.translateY;
+			break;
+			case MotionEvent.ACTION_POINTER_UP:
+				this.mode = MODE_DRAG;
+				//The second finger is off the screen and so we're back to dragging.
+				//This is not strictly necessary; we save the value of translateX and translateY into previousTranslateX
+				//and previousTranslateY when the second finger goes up
+				this.previousTranslateX = this.translateX;
+				this.previousTranslateY = this.translateY;
+				break;
+		}
+		
+		this.scaleDetector.onTouchEvent(event);
+		this.doubleTapDetector.onTouchEvent(event);
+		
+		//The only time we want to re-draw the canvas is if we are panning (which happens when the mode is
+		//DRAG and the zoom factor is not equal to 1) or if we're zooming
+		if ((this.mode == MODE_DRAG && this.dragged) || this.mode == MODE_ZOOM) {
+			invalidate();
+		}
+		
+		return true;
+	}
+	
+	public void resetScaleAndTransformation() {
+		this.scaleFactor = 1f;
+		this.translateX = 0;
+		this.translateY = 0;
+	}
+	
+	private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+		@Override
+		public boolean onScale(ScaleGestureDetector scaleDetector) {
+			scaleFactor *= scaleDetector.getScaleFactor();
+			scaleFactor = Math.max(MIN_ZOOM, Math.min(scaleFactor, MAX_ZOOM));
+			return true;
+		}
+	}
+	
+	private class CustomDoubleTapListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+        
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            float x = e.getX();
+            float y = e.getY();
+            ZoomablePannableView.this.onDoubleTap(x, y);
+            return true;
+        }
+    }
+	
+	protected void onDoubleTap(float x, float y) {
+		
+	}
+}

@@ -1,0 +1,82 @@
+package com.buhov.family;
+
+import com.buhov.family.FamilyHttpClient.Entities.Person;
+
+import android.content.Context;
+import android.database.MergeCursor;
+import android.graphics.Paint.Align;
+import android.graphics.drawable.Drawable;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+public class PersonGridAdapter extends BaseAdapter {
+
+	public static final int IMAGE_WIDTH = 150;
+	public static final int IMAGE_HEIGHT = 150;
+	public static final int IMAGE_PADDING = 8;
+	
+	private Context context;
+	private Person[] people;
+	
+	public PersonGridAdapter(Context context, Person[] people) {
+		this.context = context;
+		this.people = people;
+	}
+	
+	@Override
+	public int getCount() {
+		return this.people.length;
+	}
+
+	@Override
+	public Object getItem(int position) {
+		return this.people[position];
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return this.people[position].getId();
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		Person currentPerson = (Person)this.getItem(position);
+		TextView currentView;
+		Drawable image;
+		
+        if (convertView == null) {  // if it's not recycled, initialize some attributes
+        	currentView = new TextView(this.context);
+        	currentView.setText(currentPerson.getDisplayName());
+        	currentView.setGravity(Gravity.CENTER);
+        	
+        	if(currentPerson.isMale()) {
+            	image = this.context.getResources().getDrawable(R.drawable.male_avatar);
+            }
+            else {
+            	image = this.context.getResources().getDrawable(R.drawable.female_avatar);
+            }
+
+        	currentView.setCompoundDrawablesWithIntrinsicBounds(null, image, null, null);
+        	currentView.setCompoundDrawablePadding(IMAGE_PADDING);
+        	/*
+            imageView = new ImageView(this.context);
+            imageView.setLayoutParams(new GridView.LayoutParams(IMAGE_WIDTH, IMAGE_HEIGHT));
+            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            imageView.setPadding(IMAGE_PADDING, IMAGE_PADDING, IMAGE_PADDING, IMAGE_PADDING);
+            */
+        } 
+        else {
+        	currentView = (TextView) convertView;
+        }
+        
+        return currentView;
+	}
+
+	
+
+}

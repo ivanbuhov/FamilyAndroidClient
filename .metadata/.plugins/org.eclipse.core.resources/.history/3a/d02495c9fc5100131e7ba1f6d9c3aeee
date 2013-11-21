@@ -1,0 +1,50 @@
+package com.buhov.family;
+
+import com.buhov.family.PedigreeNode.PersonNode;
+
+import android.os.Bundle;
+import android.app.Activity;
+import android.view.Menu;
+
+public class ViewPersonActivity extends BaseActivity {
+
+	public final static String EXTRA_PERSON_ID = "EXTRA_PERSON_ID";
+	private PersonNode person;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_view_person);
+		this.initPerson();
+		this.initPersonValues();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.view_person, menu);
+		return true;
+	}
+	
+	private void initPerson() {
+		int personId = getIntent().getIntExtra(EXTRA_PERSON_ID, 0);
+		this.person = this.app.getCurrentPedigreeNode().getPerson(personId);
+	}
+	
+	private void initPersonValues() {
+		String displayNameLabel = getResources().getString(R.string.label_display_name);
+		String firstNameLabel = getResources().getString(R.string.label_first_name);
+		String middleNameLabel = getResources().getString(R.string.label_middle_name);
+		String lastNameLabel = getResources().getString(R.string.label_last_name);
+		String nicknameNameLabel = getResources().getString(R.string.label_nickname);
+		String birthDateLabel = getResources().getString(R.string.label_birth_date);
+		String isAliveLabel = getResources().getString(R.string.label_is_alive);
+		String genderLabel = getResources().getString(R.string.label_gender);
+		String emailLabel = getResources().getString(R.string.label_email);
+		String addressLabel = getResources().getString(R.string.label_address);
+		String professionLabel = getResources().getString(R.string.label_profession);
+		
+		TextView text = (TextView)findViewById(R.id.person_display_name);
+	}
+
+}
