@@ -3,26 +3,26 @@
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
 		<item value="257" key="DIALOG_WIDTH"/>
 		<item value="266" key="DIALOG_Y_ORIGIN"/>
-		<item value="928" key="DIALOG_X_ORIGIN"/>
 		<item value="381" key="DIALOG_HEIGHT"/>
+		<item value="928" key="DIALOG_X_ORIGIN"/>
 		<item value="1|Segoe UI|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|Segoe UI" key="DIALOG_FONT_NAME"/>
 	</section>
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="true" key="wrap"/>
-		<item value="false" key="casesensitive"/>
 		<item value="false" key="isRegEx"/>
+		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="false" key="wholeword"/>
-		<item value="Siblings" key="selection"/>
+		<item value="drawPerso" key="selection"/>
 		<list key="findhistory">
-			<item value="siblings"/>
-			<item value="drawPer"/>
-			<item value="EXTRA_PEDIGREE_ID"/>
-			<item value="peopleAdapter"/>
-			<item value="People L"/>
-			<item value="context"/>
+			<item value="drawPerso"/>
+			<item value="resetTr"/>
+			<item value="onDRaw"/>
+			<item value="setP"/>
+			<item value="etP"/>
+			<item value="drawPers"/>
 			<item value="setPers"/>
-			<item value="valueAt"/>
+			<item value="siblings"/>
 		</list>
 		<list key="replacehistory">
 			<item value="registrationTask"/>

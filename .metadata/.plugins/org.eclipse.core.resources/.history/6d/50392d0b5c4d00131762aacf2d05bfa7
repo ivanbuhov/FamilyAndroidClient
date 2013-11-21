@@ -1,5 +1,0 @@
-package com.buhov.family.FamilyHttpClient.Entities;
-
-public class PedigreeDTO {
-
-}
